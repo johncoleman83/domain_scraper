@@ -7,7 +7,6 @@ import queue
 import re
 import requests
 import sys
-import urllib.request
 
 
 all_links = {}
@@ -15,8 +14,38 @@ domain_links_q = queue.Queue()
 external_and_image_links_q = queue.Queue()
 TIMEOUT = (3, 10)
 
+
+def error_check_and_init_main_domain():
+    """
+    checks errors and saves original_domain
+    """
+    global original_domain
+    if len(sys.argv) != 2:
+        print("Usage:", file=sys.stderr)
+        print("$ ./scrape_url.py [URL TO BE SCAPED]", file=sys.stderr)
+        sys.exit(1)
+    url = sys.argv[1]
+    if 'http' not in url or '://' not in url:
+        print("please use a valid HTTP URL", file=sys.stderr)
+        sys.exit(1)
+    url = add_terminating_slash_to_url(url)
+    pattern = re.compile("(\.{1}.*\.{1}.*\/.*)")
+    m = re.search(pattern, url)
+    if m is None:
+        pattern = re.compile("(:\/\/.*\.{1}.*\/.*)")
+        m = re.search(pattern, url)
+        if m is None:
+            print("please use a valid HTTP URL", file=sys.stderr)
+            sys.exit(1)
+        original_domain = m.groups()[0][3:-1]
+    else:
+        original_domain = m.groups()[0][1:-1]
+    return url
+
+
 def add_terminating_slash_to_url(url):
     """
+    adds terminating slash if necessary to main input URL
     """
     if url[-1] != '/':
         url += '/'
@@ -24,6 +53,7 @@ def add_terminating_slash_to_url(url):
 
 def url_has_been_reviewed(url):
     """
+    checks if URL exists in reviewed storage of URLs
     """
     if 'www.' in url:
         i = url.index('www.')
@@ -40,6 +70,7 @@ def url_has_been_reviewed(url):
 
 def scrape_url_from_original_domain(url):
     """
+    scrapes url that is from main domain website
     """
     try:
         r = requests.get(url, allow_redirects=True, timeout=TIMEOUT)
@@ -74,6 +105,7 @@ def scrape_url_from_original_domain(url):
 
 def domain_links_loop():
     """
+    loops through and makes request for all queue'd url's
     """
     while domain_links_q.empty() is False:
         url = domain_links_q.get()
@@ -81,6 +113,7 @@ def domain_links_loop():
 
 def external_and_image_head_request(url):
     """
+    makes head request for external and image URL inputs
     """
     try:
         r = requests.head(url, allow_redirects=True, timeout=TIMEOUT)
@@ -91,6 +124,7 @@ def external_and_image_head_request(url):
 
 def external_and_image_links_loop():
     """
+    loops and makes head request to all queue'd URL's
     """
     while external_and_image_links_q.empty() is False:
         url = external_and_image_links_q.get()
@@ -99,6 +133,7 @@ def external_and_image_links_loop():
 
 def print_results():
     """
+    final printing of results
     """
     for l, s in all_links.items():
         if s >= 400:
@@ -106,25 +141,9 @@ def print_results():
 
 def main_app():
     """
+    completes all tasks of the application
     """
-    global original_domain
-    if len(sys.argv) != 2:
-        print("Usage:", file=sys.stderr)
-        print("$ ./scrape_url.py [URL TO BE SCAPED]", file=sys.stderr)
-        sys.exit(1)
-    url = sys.argv[1]
-    if 'http' not in url or '://' not in url:
-        print("please use a valid HTTP", file=sys.stderr)
-        sys.exit(1)
-    url = add_terminating_slash_to_url(url)
-    pattern = re.compile("(\.{1}.*\.{1}.*\/.*)")
-    m = re.search(pattern, url)
-    if m is None:
-        pattern = re.compile("(:\/\/.*\.{1}.*\/.*)")
-        m = re.search(pattern, url)
-        original_domain = m.groups()[0][3:-1]
-    else:
-        original_domain = m.groups()[0][1:-1]
+    url = error_check_and_init_main_domain()
     all_links[url] = None
     domain_links_q.put(url)
     domain_links_loop()
