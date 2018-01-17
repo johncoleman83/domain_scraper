@@ -10,10 +10,10 @@ Scrapes a domain to check status of all links or checks status of all links from
 $ ./scrape_url.py [URL_TO_CHECK]
 ```
 
-* Check URL's from text file
+* Check URL's from text file (WORK IN PROGESS)
 
 ```
-$ ./scrape_url.py [FILE_WITH_URLS]
+$ ./scrape_file.py [FILE_WITH_URLS]
 ```
 
 ## Example file
