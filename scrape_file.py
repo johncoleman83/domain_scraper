@@ -29,7 +29,7 @@ def error_check_and_init_main_file():
         print("$ ./scrape_url.py [FILE TO BE SCRAPED]", file=sys.stderr)
         sys.exit(1)
     INPUT_FILE = sys.argv[1]
-    if not os.path.isfile(URL_FILE):
+    if not os.path.isfile(INPUT_FILE):
         print("please use a valid file", file=sys.stderr)
         sys.exit(1)
     return INPUT_FILE
@@ -40,7 +40,8 @@ def read_file_add_to_queue(INPUT_FILE):
     reads links from input file and adds them to a queue
     """
     with open(INPUT_FILE, "r", encoding="utf-8") as open_file:
-        for i, new_link in enumerate(open_file):
+        for i, line in enumerate(open_file):
+            new_link = line.strip()
             if url_is_new(new_link):
                 domain_links_q.put(new_link)
 
@@ -69,10 +70,13 @@ def check_url_and_add_to_lists(url):
     try:
         r = requests.get(url, allow_redirects=True, timeout=TIMEOUT)
     except Exception as e:
+        print("ERROR with requests to {}".format(url))
         print(e)
         return
+    status_code = r.status_code
     if r.status_code > 302:
-        broken_links[url] = r.status_code
+        print('error with URL: {} STATUS: {}'.format(url, status_code))
+        broken_links[url] = status_code
     if r.status_code == 302:
         broken_links[url] = r.url
     return
