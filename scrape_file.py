@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 """
 Scrapes argv 1 input file for broken links
-
-WIP WORK IN PROGRESS
-
 """
 import re
 import requests
@@ -72,14 +69,15 @@ def check_url_and_add_to_lists(url):
     except Exception as e:
         print("ERROR with requests to {}".format(url))
         print(e)
-        return
-    status_code = r.status_code
-    if r.status_code > 302:
-        print('error with URL: {} STATUS: {}'.format(url, status_code))
-        broken_links[url] = status_code
-    if r.status_code == 302:
-        broken_links[url] = r.url
-    return
+        return 500
+    status = r.status_code
+    if status >= 300:
+        print('error with URL: {} STATUS: {}'.format(url, status))
+        if status == 302:
+            status = r.url
+    else:
+        status = None
+    return status
 
 
 def domain_links_loop():
@@ -88,8 +86,9 @@ def domain_links_loop():
     """
     while domain_links_q.empty() is False:
         url = domain_links_q.get()
-        check_url_and_add_to_lists(url)
-
+        status = check_url_and_add_to_lists(url)
+        if status is not None:
+            broken_links[url] = status
 
 def write_results_to_file():
     """
@@ -110,8 +109,6 @@ def main_app():
     completes all tasks of the application
     """
     INPUT_FILE = error_check_and_init_main_file()
-    # all_links[url] = None
-    # domain_links_q.put(url)
     read_file_add_to_queue(INPUT_FILE)
     domain_links_loop()
     write_results_to_file()
