@@ -189,9 +189,11 @@ def scrape_emails_from_url(url):
     try:
         r = requests.get(url, allow_redirects=True, timeout=TIMEOUT)
     except Exception as e:
+        print('ERROR with URL: {}'.format(url))
         return
     status_code = r.status_code
-    if (r.headers['Content-Type'] != 'text/html; charset=UTF-8' or status_code >= 300):
+    if ('text/html' not in r.headers['Content-Type'].lower() or status_code >= 300):
+        print('ERROR with URL: {}, status: {}, content-type: {}'.format(url, status_code, r.headers['Content-Type']))
         return
     original_domain = get_original_domain_from_url(
         add_terminating_slash_to_url(url)
