@@ -18,9 +18,8 @@ OUTPUT_FILE = './broken_links_' + str(random.random()).split('.')[1]
 
 def error_check_and_init_main_file():
     """
-    checks errors and saves original_domain
+    checks errors
     """
-    global original_domain
     if len(sys.argv) != 2:
         print("Usage:", file=sys.stderr)
         print("$ ./scrape_url.py [FILE TO BE SCRAPED]", file=sys.stderr)

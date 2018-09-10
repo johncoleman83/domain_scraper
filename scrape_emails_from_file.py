@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Scrapes argv 1 input domain for broken links
+Scrapes links from argv 1 file for email addresses
 """
 from bs4 import BeautifulSoup
 import queue
@@ -16,41 +16,31 @@ TIMEOUT = (3, 10)
 OUTPUT_FILE = './broken_links_' + str(random.random()).split('.')[1]
 
 
-def error_check_and_init_main_domain():
+def error_check_and_init_main_file():
     """
-    checks errors and saves original_domain
+    checks errors
     """
-    global original_domain
     if len(sys.argv) != 2:
         print("Usage:", file=sys.stderr)
-        print("$ ./scrape_url.py [URL TO BE SCAPED]", file=sys.stderr)
+        print("$ ./scrape_url.py [FILE TO BE SCRAPED]", file=sys.stderr)
         sys.exit(1)
-    url = sys.argv[1]
-    if 'http' not in url or '://' not in url:
-        print("please use a valid HTTP URL", file=sys.stderr)
+    INPUT_FILE = sys.argv[1]
+    if not os.path.isfile(INPUT_FILE):
+        print("please use a valid file", file=sys.stderr)
         sys.exit(1)
-    url = add_terminating_slash_to_url(url)
-    pattern = re.compile("(\.{1}.*\.{1}.*\/.*)")
-    m = re.search(pattern, url)
-    if m is None:
-        pattern = re.compile("(:\/\/.*\.{1}.*\/.*)")
-        m = re.search(pattern, url)
-        if m is None:
-            print("please use a valid HTTP URL", file=sys.stderr)
-            sys.exit(1)
-        original_domain = m.groups()[0][3:-1]
-    else:
-        original_domain = m.groups()[0][1:-1]
-    return url
+    return INPUT_FILE
 
 
-def add_terminating_slash_to_url(url):
+def read_file_add_to_queue(INPUT_FILE):
     """
-    adds terminating slash if necessary to main input URL
+    reads links from input file and adds them to a queue
     """
-    if url[-1] != '/':
-        url += '/'
-    return url
+    with open(INPUT_FILE, "r", encoding="utf-8") as open_file:
+        for i, line in enumerate(open_file):
+            new_link = line.strip()
+            if url_is_new(new_link):
+                all_links[new_url] = None
+                domain_links_q.put(new_link)
 
 def url_is_new(url):
     """
@@ -69,7 +59,48 @@ def url_is_new(url):
     elif url[:-1] in all_links:  return False
     return True
 
-def parse_response_for_new_links(r):
+def url_could_contain_email_link(url):
+    """
+    checks if input url could contian a link with emails
+    """
+    LINKS_COULD_CONTAIN_EMAILS = [
+        'contact',
+        'about',
+        'staff',
+        'directory',
+        'leadership',
+        'team'
+    ]
+    url = url.lower()
+    for word in LINKS_COULD_CONTAIN_EMAILS:
+        if word in url: return True
+    return False
+
+def add_terminating_slash_to_url(url):
+    """
+    adds terminating slash if necessary to main input URL
+    """
+    if url[-1] != '/':
+        url += '/'
+    return url
+
+def get_original_domain_from_url(url):
+    """
+    gets the original domain
+    """
+    pattern = re.compile("(\.{1}.*\.{1}.*\/.*)")
+    m = re.search(pattern, url)
+    if m is None:
+        pattern = re.compile("(:\/\/.*\.{1}.*\/.*)")
+        m = re.search(pattern, url)
+        if m is None:
+            print("could not find a valid HTTP URL", file=sys.stderr)
+            return None
+        return m.groups()[0][3:-1]
+    else:
+        return m.groups()[0][1:-1]
+
+def parse_response_for_new_emails(url, r):
     """
     parses response text for new links to add to queue
     """
@@ -81,61 +112,37 @@ def parse_response_for_new_links(r):
         m = re.search(pattern, new_url)
         if m is None or not url_is_new(new_url):
             continue
-        all_links[new_url] = None
-        if original_domain in new_url:
+        url = add_terminating_slash_to_url(url)
+        original_domain = get_original_domain_from_url(url)
+        if url_could_contain_email_link(new_url) and original_domain in new_url:
+            all_links[new_url] = None
             domain_links_q.put(new_url)
-        else:
-            external_and_image_links_q.put(new_url)
-    for link in soup.find_all('img'):
-        new_url = link.get('src')
-        m = re.search(pattern, new_url)
-        if m is None or not url_is_new(new_url):
-            continue
-        all_links[new_url] = None
-        external_and_image_links_q.put(new_url)
+    # should check for social media links and store social media links for this URL
+    # Should check for emails and store email object for this URL
 
-def scrape_url_from_original_domain_links(url):
+
+
+def scrape_emails_from_url(url):
     """
-    scrapes url that is from main domain website
+    scrapes for emails that is from main domain website
     """
     try:
         r = requests.get(url, allow_redirects=True, timeout=TIMEOUT)
     except Exception as e:
-        all_links[url] = 500
         return
     status_code = r.status_code
-    all_links[url] = status_code
     if (r.headers['Content-Type'] != 'text/html; charset=UTF-8' or status_code >= 300):
         return
-    parse_response_for_new_links(r)
+    parse_response_for_new_emails(url, r)
 
 
-def domain_links_loop():
+def loop_all_links():
     """
     loops through and makes request for all queue'd url's
     """
     while domain_links_q.empty() is False:
         url = domain_links_q.get()
-        scrape_url_from_original_domain_links(url)
-
-def external_and_image_head_request(url):
-    """
-    makes head request for external and image URL inputs
-    """
-    try:
-        r = requests.head(url, allow_redirects=True, timeout=TIMEOUT)
-    except Exception as e:
-        all_links[url] = 500
-        return
-    all_links[url] = r.status_code
-
-def external_and_image_links_loop():
-    """
-    loops and makes head request to all queue'd URL's
-    """
-    while external_and_image_links_q.empty() is False:
-        url = external_and_image_links_q.get()
-        external_and_image_head_request(url)
+        scrape_emails_from_url(url)
 
 
 def write_results_to_file():
@@ -156,10 +163,9 @@ def main_app():
     """
     completes all tasks of the application
     """
-    url = error_check_and_init_main_domain()
-    all_links[url] = None
-    domain_links_q.put(url)
-    domain_links_loop()
+    INPUT_FILE = error_check_and_init_main_file()
+    read_file_add_to_queue(INPUT_FILE)
+    loop_all_links()
     external_and_image_links_loop()
     write_results_to_file()
 
