@@ -20,9 +20,9 @@ external_and_image_links_q = queue.Queue()
 TIMEOUT = (3, 10)
 FILE_HASH = str(random.random()).split('.')[1]
 ALL_OUTPUT_FILE = './email_social_links_' + FILE_HASH
-EMAIL_OUTPUT_FILE = './emails_' + FILE_HASH
-SOCIAL_OUTPUT_FILE = './social_media_' + FILE_HASH
-
+TEMP_EMAIL_OUTPUT_FILE = './temp_emails_' + FILE_HASH
+TEMP_SOCIAL_OUTPUT_FILE = './temp_social_media_' + FILE_HASH
+CHECKED_URLS = './already_checked_urls' + FILE_HASH
 
 def error_check_and_init_main_file():
     """
@@ -49,6 +49,20 @@ def read_file_add_to_queue(INPUT_FILE):
             if url_is_new(new_url):
                 all_links[new_url] = None
                 domain_links_q.put(new_url)
+
+def create_temp_files():
+    """
+    creates temp files to be appended to
+    """
+    FIRST_LINE = """TIME: {}
+        link                  -                   status
+""".format(str(datetime.datetime.now()))
+    with open(TEMP_EMAIL_OUTPUT_FILE, "w", encoding="utf-8") as open_file:
+        open_file.write(FIRST_LINE)
+    with open(TEMP_SOCIAL_OUTPUT_FILE, "w", encoding="utf-8") as open_file:
+        open_file.write(FIRST_LINE)
+    with open(CHECKED_URLS, "w", encoding="utf-8") as open_file:
+        open_file.write(FIRST_LINE)
 
 def url_is_new(url):
     """
@@ -182,6 +196,31 @@ def parse_response(original_domain, url, r):
     emails = parse_response_for_emails(r)
     return emails, social_links
 
+def temp_write_updates_to_files(url, emails, social_links):
+    """
+    writes the temporary findings in case of crash
+    """
+    with open(CHECKED_URLS, "a", encoding="utf-8") as open_file:
+        open_file.write("{}\n".format(url))
+    if len(emails) + len(social_links) == 0:
+        return
+    if len(emails) > 0:
+        with open(TEMP_EMAIL_OUTPUT_FILE, "a", encoding="utf-8") as open_file:
+            lines = ""
+            for e in emails:
+                lines += "{}\n".format(e)
+            open_file.write(lines)
+    if len(social_links) > 0:
+        with open(TEMP_SOCIAL_OUTPUT_FILE, "a", encoding="utf-8") as open_file:
+            lines = ""
+            for s in social_links:
+                lines += "{}\n".format(s)
+            open_file.write(lines)
+    all_links[url] = {
+        'emails': emails,
+        'social_media': social_links
+    }
+
 def scrape_emails_from_url(url):
     """
     scrapes for emails that is from main domain website
@@ -193,7 +232,7 @@ def scrape_emails_from_url(url):
         return
     status_code = r.status_code
     if r and r.headers:
-        content_type = r.headers['Content-Type']
+        content_type = r.headers.get('Content-Type', None)
     else:
         return
     if (status_code >= 300 or content_type.__class__.__name__ != 'str' or 'text/html' not in content_type.lower()):
@@ -205,13 +244,7 @@ def scrape_emails_from_url(url):
     emails, social_links = parse_response(
         original_domain, url, r
     )
-    if len(emails) + len(social_links) > 0:
-        if len(emails) > 0:       print('new emails: {}'.format(emails))
-        if len(social_links) > 0: print('new social: {}'.format(social_links))
-        all_links[url] = {
-            'emails': emails,
-            'social_media': social_links
-        }
+    temp_write_updates_to_files(url, emails, social_links)
 
 def loop_all_links():
     """
@@ -234,21 +267,11 @@ def write_results_to_file():
         for url, meta in all_links.items():
             if meta.__class__.__name__ == 'dict':
                 line = "url: {}\n".format(url)
-                if len(meta['emails']) > 0:
-                    line += "emails: {}\n".format(meta['emails'])
-                if len(meta['social_media']) > 0:
-                    line += "social_media: {}\n".format(meta['social_media'])
+                if len(meta.get('emails', 0)) > 0:
+                    line += "emails: {}\n".format(meta.get('emails', 0))
+                if len(meta.get('social_media', 0)) > 0:
+                    line += "social_media: {}\n".format(meta.get('social_media', 0))
                 open_file.write(line)
-    with open(EMAIL_OUTPUT_FILE, "w", encoding="utf-8") as open_file:
-        open_file.write(FIRST_LINE)
-        for email in all_emails:
-            line = "{}\n".format(email)
-            open_file.write(line)
-    with open(SOCIAL_OUTPUT_FILE, "w", encoding="utf-8") as open_file:
-        open_file.write(FIRST_LINE)
-        for social_link in all_social_links:
-            line = "{}\n".format(social_link)
-            open_file.write(line)
 
 def main_app():
     """
@@ -256,6 +279,7 @@ def main_app():
     """
     INPUT_FILE = error_check_and_init_main_file()
     read_file_add_to_queue(INPUT_FILE)
+    create_temp_files()
     loop_all_links()
     write_results_to_file()
 
