@@ -47,6 +47,7 @@ def url_is_new(url):
     """
     checks if URL exists in reviewed storage of URLs
     """
+    if url in broken_links:         return False
     if 'www.' in url:
         i = url.index('www.')
         new = "{}{}".format(url[:i], url[i + 4:])
@@ -55,10 +56,9 @@ def url_is_new(url):
         i = url.index('://')
         new = "{}www.{}".format(url[:i + 3], url[i + 3:])
         if new in broken_links:     return False
-    if url in broken_links:         return False
-    elif url + '/' in broken_links: return False
+    if url + '/' in broken_links:   return False
     elif url[:-1] in broken_links:  return False
-    else:                        return True
+    return True
 
 def check_url_and_add_to_lists(url):
     """
