@@ -192,8 +192,12 @@ def scrape_emails_from_url(url):
         print('ERROR with URL: {}'.format(url))
         return
     status_code = r.status_code
-    if ('text/html' not in r.headers['Content-Type'].lower() or status_code >= 300):
-        print('ERROR with URL: {}, status: {}, content-type: {}'.format(url, status_code, r.headers['Content-Type']))
+    if r and r.headers:
+        content_type = r.headers['Content-Type']
+    else:
+        return
+    if (status_code >= 300 or content_type.__class__.__name__ != 'str' or 'text/html' not in content_type.lower()):
+        print('ERROR with URL: {}, status: {}, content-type: {}'.format(url, status_code, content_type))
         return
     original_domain = get_original_domain_from_url(
         add_terminating_slash_to_url(url)
@@ -202,6 +206,8 @@ def scrape_emails_from_url(url):
         original_domain, url, r
     )
     if len(emails) + len(social_links) > 0:
+        if len(emails) > 0:       print('new emails: {}'.format(emails))
+        if len(social_links) > 0: print('new social: {}'.format(social_links))
         all_links[url] = {
             'emails': emails,
             'social_media': social_links
