@@ -7,7 +7,8 @@ import queue
 import re
 import requests
 import sys
-
+import datetime
+import random
 
 all_links = {}
 domain_links_q = queue.Queue()
