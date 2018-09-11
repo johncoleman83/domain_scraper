@@ -58,7 +58,7 @@ def create_temp_files():
     """
     creates temp files to be appended to
     """
-    FIRST_LINE = "TIME: {}".format(str(datetime.datetime.now()))
+    FIRST_LINE = "TIME: {}\n".format(str(datetime.datetime.now()))
     with open(TEMP_EMAIL_OUTPUT_FILE, "w", encoding="utf-8") as open_file:
         open_file.write(FIRST_LINE)
     with open(TEMP_SOCIAL_OUTPUT_FILE, "w", encoding="utf-8") as open_file:
@@ -72,12 +72,16 @@ def url_is_new(url):
     """
     if url in all_links:         return False
     if 'www.' in url:
-        i = url.index('www.')
-        new = "{}{}".format(url[:i], url[i + 4:])
+        new = url.replace('www.', '')
         if new in all_links:     return False
     else:
-        i = url.index('://')
-        new = "{}www.{}".format(url[:i + 3], url[i + 3:])
+        new = url.replace('://', '://www.')
+        if new in all_links:     return False
+    if 'http://' in url:
+        new = url.replace('http://', 'https://')
+        if new in all_links:     return False
+    else:
+        new = url.replace('https://', 'http://')
         if new in all_links:     return False
     if url + '/' in all_links:   return False
     elif url[:-1] in all_links:  return False
@@ -103,7 +107,6 @@ def url_is_valid(url):
     if url[:7] == 'mailto:':          return False
     if url[-5:] == '.aspx':           return False
     if url_is_image_or_css_link(url): return False
-    if parsed_url_object.path.__class__.__name__ == 'str' and len(parsed_url_object.path) > 0: return False
     return True
 
 def url_is_new_social_link(url):
@@ -112,23 +115,28 @@ def url_is_new_social_link(url):
     """
     if url in all_social_links:         return False
     if 'www.' in url:
-        i = url.index('www.')
-        new = "{}{}".format(url[:i], url[i + 4:])
+        new = url.replace('www.', '')
         if new in all_social_links:     return False
     else:
-        i = url.index('://')
-        new = "{}www.{}".format(url[:i + 3], url[i + 3:])
+        new = url.replace('://', '://www.')
+        if new in all_social_links:     return False
+    if 'http://' in url:
+        new = url.replace('http://', 'https://')
+        if new in all_social_links:     return False
+    else:
+        new = url.replace('https://', 'http://')
         if new in all_social_links:     return False
     if url + '/' in all_social_links:   return False
     elif url[:-1] in all_social_links:  return False
     return True
 
-def url_could_contain_email_link(parsed_url_object, url):
+def url_could_contain_email_link(original_domain, parsed_url_object, url):
     """
     checks if input url could contian a link with emails
     """
     LINKS_COULD_CONTAIN_EMAILS = [
         'leadership',
+        'about',
         'affiliations',
         'departments',
         'governance',
@@ -138,15 +146,15 @@ def url_could_contain_email_link(parsed_url_object, url):
         'leadership',
         'team'
     ]
-    if parsed_url_object.netloc not in url:               return False
+    if original_domain not in url:                        return False
     if url_could_be_social_media(url):                    return False
-    path = parsed_url_object.path
+    path = (parsed_url_object.path).lower()
     if path.__class__.__name__ != 'str' or len(path) < 4: return False
     for word in LINKS_COULD_CONTAIN_EMAILS:
         if word in path: return True
     return False
 
-def url_is_not_invalid_social_media(url):
+def url_is_valid_social_media(potential_social_url):
     """
     checks if input url could contian a social media link
     """
@@ -158,7 +166,7 @@ def url_is_not_invalid_social_media(url):
         'share',
     ]
     for invalid_word in INVALID_SOCIAL_LINKS:
-        if invalid_word in url:
+        if invalid_word in potential_social_url:
             return False
     return True
 
@@ -185,7 +193,7 @@ def url_could_be_social_media(url):
         'https://www.github.com',
     ]
     for social_link in LINKS_COULD_BE_SOCIAL_MEDIA:
-        if social_link in url and url_is_not_invalid_social_media(url):
+        if social_link in url:
             return True
     return False
 
@@ -219,7 +227,7 @@ def parse_response_for_emails(r):
         all_emails.update(valid_emails)
     return valid_emails
 
-def parse_response(parsed_url_object, original_domain, url, r):
+def parse_response(original_domain, url, r):
     """
     parses response text for new links to add to queue
     """
@@ -228,15 +236,16 @@ def parse_response(parsed_url_object, original_domain, url, r):
     social_links = set()
     for link in soup.find_all('a'):
         new_url = link.get('href', None)
-        if new_url.__class__.__name__ is not 'str': continue
-        url_to_check = new_url.lower()
+        if new_url.__class__.__name__ != 'str' or len(new_url) == 0: continue
+        url_lowered = new_url.lower()
+        parsed_url_object = urlparse(url_lowered)
         m = re.search(pattern, new_url)
-        if m is None or not url_is_valid(parsed_url_object, url_to_check):
+        if m is None or not url_is_valid(url_lowered):
             continue
-        if url_could_be_social_media(url_to_check) and url_is_new_social_link(url_to_check):
+        if url_could_be_social_media(url_lowered) and url_is_valid_social_media(url_lowered) and url_is_new_social_link(url_lowered):
             social_links.add(new_url)
-            all_social_links.add(url_to_check)
-        if url_could_contain_email_link(parsed_url_object, url_to_check):
+            all_social_links.add(url_lowered)
+        if url_could_contain_email_link(original_domain, parsed_url_object, url_lowered):
             all_links[new_url] = None
             links_to_scrape_q.put(new_url)
     emails = parse_response_for_emails(r)
@@ -284,10 +293,10 @@ def scrape_emails_from_url(url):
     if (status_code >= 300 or content_type.__class__.__name__ != 'str' or 'text/html' not in content_type.lower()):
         print('ERROR with URL: {}, status: {}, content-type: {}'.format(url, status_code, content_type))
         return
-    parsed_url_object = urlparse(url)
-    original_domain = get_original_domain_from_url(parsed_url_object)
+    parsed_original_url_object = urlparse(url)
+    original_domain = get_original_domain_from_url(parsed_original_url_object)
     emails, social_links = parse_response(
-        parsed_url_object, original_domain, url, r
+        original_domain, url, r
     )
     temp_write_updates_to_files(url, emails, social_links)
 
@@ -304,7 +313,7 @@ def write_results_to_file():
     """
     final writing of results
     """
-    FIRST_LINE = "TIME: {}".format(str(datetime.datetime.now()))
+    FIRST_LINE = "TIME: {}\n".format(str(datetime.datetime.now()))
     with open(ALL_OUTPUT_FILE, "w", encoding="utf-8") as open_file:
         open_file.write(FIRST_LINE)
         for url, meta in all_links.items():
