@@ -12,7 +12,7 @@ import os.path
 import datetime
 import random
 
-
+# GLOBALS AND CONSTANTS
 all_links = {}
 all_social_links = set()
 all_emails = set()
@@ -26,7 +26,6 @@ CHECKED_URLS = './crh/already_checked_urls_' + FILE_HASH
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 }
-
 
 def error_check_and_init_main_file():
     """
@@ -92,12 +91,11 @@ def url_is_image_or_css_link(url):
     checks if url has image link in it
     """
     IMAGE_EXTENSIONS = [
-        '.png', '.jpg', '@md.x'
+        '.png', '.jpg', '@md.x', '.pdf', '.calendar.google.com'
     ]
     for ext in IMAGE_EXTENSIONS:
         if ext in url: return True
     return False
-
 
 def url_is_valid(url):
     """
@@ -146,10 +144,13 @@ def url_could_contain_email_link(original_domain, parsed_url_object, url):
         'leadership',
         'team'
     ]
-    if original_domain not in url:                        return False
-    if url_could_be_social_media(url):                    return False
-    path = (parsed_url_object.path).lower()
-    if path.__class__.__name__ != 'str' or len(path) < 4: return False
+    if not original_domain or original_domain not in url:    return False
+    if url_could_be_social_media(url):                       return False
+    query = parsed_url_object.query
+    if query.__class__.__name__ == 'str' and len(query) > 0: return False
+    path = parsed_url_object.path
+    if path.__class__.__name__ != 'str' or len(path) < 4:    return False
+    path = path.lower()
     for word in LINKS_COULD_CONTAIN_EMAILS:
         if word in path: return True
     return False
@@ -160,6 +161,7 @@ def url_is_valid_social_media(potential_social_url):
     """
     INVALID_SOCIAL_LINKS = [
         '/intent/',
+        '/home?status='
         'shareArticle',
         'sharer',
         'share.php',
@@ -196,14 +198,6 @@ def url_could_be_social_media(url):
         if social_link in url:
             return True
     return False
-
-def add_terminating_slash_to_url(url):
-    """
-    adds terminating slash if necessary to main input URL
-    """
-    if url[-1] != '/':
-        url += '/'
-    return url
 
 def get_original_domain_from_url(parsed_url_object):
     """
