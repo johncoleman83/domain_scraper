@@ -13,7 +13,7 @@ import datetime
 import random
 
 # GLOBALS AND CONSTANTS
-all_links = {}
+all_links = set()
 all_social_links = set()
 all_emails = set()
 links_to_scrape_q = queue.Queue()
@@ -22,6 +22,7 @@ FILE_HASH = str(random.random()).split('.')[1]
 ALL_OUTPUT_FILE = './crh/email_social_links_' + FILE_HASH
 TEMP_EMAIL_OUTPUT_FILE = './crh/temp_emails_' + FILE_HASH
 TEMP_SOCIAL_OUTPUT_FILE = './crh/temp_social_media_' + FILE_HASH
+NEWLY_FOUND_URLS = './crh/newly_found_urls_' + FILE_HASH
 CHECKED_URLS = './crh/already_checked_urls_' + FILE_HASH
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
@@ -50,7 +51,7 @@ def read_file_add_to_queue(INPUT_FILE):
         for i, line in enumerate(open_file):
             new_url = line.strip()
             if url_is_new(new_url, all_links):
-                all_links[new_url] = None
+                all_links.add(new_url)
                 links_to_scrape_q.put(new_url)
 
 def create_temp_files(file_list):
@@ -61,10 +62,6 @@ def create_temp_files(file_list):
     for f in file_list:
         with open(f, "w", encoding="utf-8") as open_file:
             open_file.write(FIRST_LINE)
-    with open(TEMP_SOCIAL_OUTPUT_FILE, "w", encoding="utf-8") as open_file:
-        open_file.write(FIRST_LINE)
-    with open(CHECKED_URLS, "w", encoding="utf-8") as open_file:
-        open_file.write(FIRST_LINE)
 
 def url_is_new(url, object_store):
     """
@@ -107,6 +104,7 @@ def url_could_contain_email_link(original_domain, parsed_url_object, url):
     LINKS_COULD_CONTAIN_EMAILS = [
         'about',
         'affiliations',
+        'board',
         'departments',
         'directory',
         'governance',
@@ -130,7 +128,7 @@ def url_is_valid_social_media(social_url):
     checks if input url could contian a social media link
     """
     INVALID_SOCIAL_LINKS = [
-        '/home',
+        '/home?status',
         '/intent/',
         'share',
         'shareArticle',
@@ -157,6 +155,16 @@ def url_could_be_social_media(potential_social_url):
             return True
     return False
 
+def do_social_media_checks(url_lowered):
+    """
+    runs all checks on social media
+    """
+    return (
+        url_could_be_social_media(url_lowered) and
+        url_is_valid_social_media(url_lowered) and
+        url_is_new(url_lowered, all_social_links)
+    )
+
 def get_original_domain_from_url(parsed_url_object):
     """
     gets the original domain
@@ -179,7 +187,7 @@ def parse_response_for_emails(r):
         all_emails.update(valid_emails)
     return valid_emails
 
-def parse_response(original_domain, url, r):
+def parse_response(original_domain, r):
     """
     parses response text for new links to add to queue
     """
@@ -194,11 +202,13 @@ def parse_response(original_domain, url, r):
         m = re.search(pattern, new_url)
         if m is None or not url_is_valid(url_lowered):
             continue
-        if url_could_be_social_media(url_lowered) and url_is_valid_social_media(url_lowered) and url_is_new(url_lowered, all_social_links):
+        if do_social_media_checks(url_lowered):
             social_links.add(new_url)
             all_social_links.add(url_lowered)
         if url_could_contain_email_link(original_domain, parsed_url_object, url_lowered):
-            all_links[new_url] = None
+            with open(NEWLY_FOUND_URLS, "a", encoding="utf-8") as open_file:
+                open_file.write("{}\n".format(new_url))
+            all_links.add(new_url)
             links_to_scrape_q.put(new_url)
     emails = parse_response_for_emails(r)
     return emails, social_links
@@ -210,6 +220,8 @@ def temp_write_updates_to_files(url, emails, social_links):
     with open(CHECKED_URLS, "a", encoding="utf-8") as open_file:
         open_file.write("{}\n".format(url))
     if len(emails) + len(social_links) == 0:
+        del emails
+        del social_links
         return
     if len(emails) > 0:
         with open(TEMP_EMAIL_OUTPUT_FILE, "a", encoding="utf-8") as open_file:
@@ -223,12 +235,10 @@ def temp_write_updates_to_files(url, emails, social_links):
             for s in social_links:
                 lines += "{}\n".format(s)
             open_file.write(lines)
-    all_links[url] = {
-        'emails': emails,
-        'social_media': social_links
-    }
+    del emails
+    del social_links
 
-def scrape_emails_from_url(url):
+def scrape_url(url):
     """
     scrapes for emails that is from main domain website
     """
@@ -247,9 +257,7 @@ def scrape_emails_from_url(url):
         return
     parsed_original_url_object = urlparse(url)
     original_domain = get_original_domain_from_url(parsed_original_url_object)
-    emails, social_links = parse_response(
-        original_domain, url, r
-    )
+    emails, social_links = parse_response(original_domain, r)
     temp_write_updates_to_files(url, emails, social_links)
 
 def loop_all_links():
@@ -258,7 +266,7 @@ def loop_all_links():
     """
     while links_to_scrape_q.empty() is False:
         url = links_to_scrape_q.get()
-        scrape_emails_from_url(url)
+        scrape_url(url)
 
 
 def write_results_to_file():
@@ -284,7 +292,7 @@ def main_app():
     INPUT_FILE = error_check_and_init_main_file()
     read_file_add_to_queue(INPUT_FILE)
     create_temp_files([
-        TEMP_EMAIL_OUTPUT_FILE, TEMP_SOCIAL_OUTPUT_FILE, CHECKED_URLS
+        TEMP_EMAIL_OUTPUT_FILE, TEMP_SOCIAL_OUTPUT_FILE, CHECKED_URLS, NEWLY_FOUND_URLS
     ])
     loop_all_links()
     write_results_to_file()
