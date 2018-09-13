@@ -15,7 +15,9 @@ domain_links_q = queue.Queue()
 external_and_image_links_q = queue.Queue()
 TIMEOUT = (3, 10)
 OUTPUT_FILE = './broken_links_' + str(random.random()).split('.')[1]
-
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
+}
 
 def error_check_and_init_main_domain():
     """
@@ -53,21 +55,17 @@ def add_terminating_slash_to_url(url):
         url += '/'
     return url
 
-def url_is_new(url):
+def url_is_new(url, object_store):
     """
     checks if URL exists in reviewed storage of URLs
     """
-    if url in all_links:         return False
-    if 'www.' in url:
-        i = url.index('www.')
-        new = "{}{}".format(url[:i], url[i + 4:])
-        if new in all_links:     return False
-    else:
-        i = url.index('://')
-        new = "{}www.{}".format(url[:i + 3], url[i + 3:])
-        if new in all_links:     return False
-    if url + '/' in all_links:   return False
-    elif url[:-1] in all_links:  return False
+    if url in object_store:                                return False
+    if url.replace('www.', '') in object_store:            return False
+    if url.replace('://', '://www.') in object_store:      return False
+    if url.replace('http://', 'https://') in object_store: return False
+    if url.replace('https://', 'http://') in object_store: return False
+    if url + '/' in object_store:                          return False
+    if url[:-1] in object_store:                           return False
     return True
 
 def parse_response_for_new_links(r):
@@ -80,7 +78,7 @@ def parse_response_for_new_links(r):
         new_url = link.get('href', None)
         if new_url is None: continue
         m = re.search(pattern, new_url)
-        if m is None or not url_is_new(new_url):
+        if m is None or not url_is_new(new_url, all_links):
             continue
         all_links[new_url] = None
         if original_domain in new_url:
@@ -90,7 +88,7 @@ def parse_response_for_new_links(r):
     for link in soup.find_all('img'):
         new_url = link.get('src')
         m = re.search(pattern, new_url)
-        if m is None or not url_is_new(new_url):
+        if m is None or not url_is_new(new_url, all_links):
             continue
         all_links[new_url] = None
         external_and_image_links_q.put(new_url)
@@ -100,7 +98,7 @@ def scrape_url_from_original_domain_links(url):
     scrapes url that is from main domain website
     """
     try:
-        r = requests.get(url, allow_redirects=True, timeout=TIMEOUT)
+        r = requests.get(url, headers=HEADERS, allow_redirects=True, timeout=TIMEOUT)
     except Exception as e:
         all_links[url] = 500
         return
@@ -124,7 +122,7 @@ def external_and_image_head_request(url):
     makes head request for external and image URL inputs
     """
     try:
-        r = requests.head(url, allow_redirects=True, timeout=TIMEOUT)
+        r = requests.head(url, headers=HEADERS, allow_redirects=True, timeout=TIMEOUT)
     except Exception as e:
         all_links[url] = 500
         return

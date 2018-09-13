@@ -14,7 +14,9 @@ broken_links = {}
 domain_links_q = queue.Queue()
 TIMEOUT = (3, 10)
 OUTPUT_FILE = './broken_links_' + str(random.random()).split('.')[1]
-
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
+}
 
 def error_check_and_init_main_file():
     """
@@ -38,25 +40,21 @@ def read_file_add_to_queue(INPUT_FILE):
     with open(INPUT_FILE, "r", encoding="utf-8") as open_file:
         for i, line in enumerate(open_file):
             new_link = line.strip()
-            if url_is_new(new_link):
+            if url_is_new(new_link, broken_links):
                 domain_links_q.put(new_link)
 
 
-def url_is_new(url):
+def url_is_new(url, object_store):
     """
     checks if URL exists in reviewed storage of URLs
     """
-    if url in broken_links:         return False
-    if 'www.' in url:
-        i = url.index('www.')
-        new = "{}{}".format(url[:i], url[i + 4:])
-        if new in broken_links:     return False
-    else:
-        i = url.index('://')
-        new = "{}www.{}".format(url[:i + 3], url[i + 3:])
-        if new in broken_links:     return False
-    if url + '/' in broken_links:   return False
-    elif url[:-1] in broken_links:  return False
+    if url in object_store:                                return False
+    if url.replace('www.', '') in object_store:            return False
+    if url.replace('://', '://www.') in object_store:      return False
+    if url.replace('http://', 'https://') in object_store: return False
+    if url.replace('https://', 'http://') in object_store: return False
+    if url + '/' in object_store:                          return False
+    if url[:-1] in object_store:                           return False
     return True
 
 def check_url_and_add_to_lists(url):
@@ -64,7 +62,7 @@ def check_url_and_add_to_lists(url):
     scrapes url that is from main domain website
     """
     try:
-        r = requests.get(url, allow_redirects=True, timeout=TIMEOUT)
+        r = requests.get(url, headers=HEADERS, allow_redirects=True, timeout=TIMEOUT)
     except Exception as e:
         print("ERROR with requests to {}".format(url))
         print(e)

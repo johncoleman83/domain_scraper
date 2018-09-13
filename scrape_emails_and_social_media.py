@@ -49,41 +49,34 @@ def read_file_add_to_queue(INPUT_FILE):
     with open(INPUT_FILE, "r", encoding="utf-8") as open_file:
         for i, line in enumerate(open_file):
             new_url = line.strip()
-            if url_is_new(new_url):
+            if url_is_new(new_url, all_links):
                 all_links[new_url] = None
                 links_to_scrape_q.put(new_url)
 
-def create_temp_files():
+def create_temp_files(file_list):
     """
     creates temp files to be appended to
     """
     FIRST_LINE = "TIME: {}\n".format(str(datetime.datetime.now()))
-    with open(TEMP_EMAIL_OUTPUT_FILE, "w", encoding="utf-8") as open_file:
-        open_file.write(FIRST_LINE)
+    for f in file_list:
+        with open(f, "w", encoding="utf-8") as open_file:
+            open_file.write(FIRST_LINE)
     with open(TEMP_SOCIAL_OUTPUT_FILE, "w", encoding="utf-8") as open_file:
         open_file.write(FIRST_LINE)
     with open(CHECKED_URLS, "w", encoding="utf-8") as open_file:
         open_file.write(FIRST_LINE)
 
-def url_is_new(url):
+def url_is_new(url, object_store):
     """
     checks if URL exists in reviewed storage of URLs
     """
-    if url in all_links:         return False
-    if 'www.' in url:
-        new = url.replace('www.', '')
-        if new in all_links:     return False
-    else:
-        new = url.replace('://', '://www.')
-        if new in all_links:     return False
-    if 'http://' in url:
-        new = url.replace('http://', 'https://')
-        if new in all_links:     return False
-    else:
-        new = url.replace('https://', 'http://')
-        if new in all_links:     return False
-    if url + '/' in all_links:   return False
-    elif url[:-1] in all_links:  return False
+    if url in object_store:                                return False
+    if url.replace('www.', '') in object_store:            return False
+    if url.replace('://', '://www.') in object_store:      return False
+    if url.replace('http://', 'https://') in object_store: return False
+    if url.replace('https://', 'http://') in object_store: return False
+    if url + '/' in object_store:                          return False
+    if url[:-1] in object_store:                           return False
     return True
 
 def url_is_image_or_css_link(url):
@@ -101,31 +94,10 @@ def url_is_valid(url):
     """
     checks if url is valid
     """
-    if not url_is_new(url):           return False
-    if url[:7] == 'mailto:':          return False
-    if url[-5:] == '.aspx':           return False
-    if url_is_image_or_css_link(url): return False
-    return True
-
-def url_is_new_social_link(url):
-    """
-    checks if URL exists in reviewed storage of social links URLs
-    """
-    if url in all_social_links:         return False
-    if 'www.' in url:
-        new = url.replace('www.', '')
-        if new in all_social_links:     return False
-    else:
-        new = url.replace('://', '://www.')
-        if new in all_social_links:     return False
-    if 'http://' in url:
-        new = url.replace('http://', 'https://')
-        if new in all_social_links:     return False
-    else:
-        new = url.replace('https://', 'http://')
-        if new in all_social_links:     return False
-    if url + '/' in all_social_links:   return False
-    elif url[:-1] in all_social_links:  return False
+    if not url_is_new(url, all_links): return False
+    if url[:7] == 'mailto:':           return False
+    if url[-5:] == '.aspx':            return False
+    if url_is_image_or_css_link(url):  return False
     return True
 
 def url_could_contain_email_link(original_domain, parsed_url_object, url):
@@ -133,15 +105,13 @@ def url_could_contain_email_link(original_domain, parsed_url_object, url):
     checks if input url could contian a link with emails
     """
     LINKS_COULD_CONTAIN_EMAILS = [
-        'leadership',
         'about',
         'affiliations',
         'departments',
-        'governance',
-        'about',
-        'staff',
         'directory',
+        'governance',
         'leadership',
+        'staff',
         'team'
     ]
     if not original_domain or original_domain not in url:    return False
@@ -155,47 +125,35 @@ def url_could_contain_email_link(original_domain, parsed_url_object, url):
         if word in path: return True
     return False
 
-def url_is_valid_social_media(potential_social_url):
+def url_is_valid_social_media(social_url):
     """
     checks if input url could contian a social media link
     """
     INVALID_SOCIAL_LINKS = [
+        '/home',
         '/intent/',
-        '/home?status='
+        'share',
         'shareArticle',
         'sharer',
-        'share.php',
-        'share',
+        'share.php'
     ]
     for invalid_word in INVALID_SOCIAL_LINKS:
-        if invalid_word in potential_social_url:
+        if invalid_word in social_url:
             return False
     return True
 
-def url_could_be_social_media(url):
+def url_could_be_social_media(potential_social_url):
     """
     checks if input url could contian a social media link
     """
     LINKS_COULD_BE_SOCIAL_MEDIA = [
-        'http://linkedin.com',
-        'http://twitter.com',
-        'http://facebook.com',
-        'http://github.com',
-        'http://www.linkedin.com',
-        'http://www.twitter.com',
-        'http://www.facebook.com',
-        'http://www.github.com',
-        'https://linkedin.com',
-        'https://twitter.com',
-        'https://facebook.com',
-        'https://github.com',
-        'https://www.linkedin.com',
-        'https://www.twitter.com',
-        'https://www.facebook.com',
-        'https://www.github.com',
+        'linkedin.com',
+        'twitter.com',
+        'facebook.com',
+        'github.com',
     ]
-    for social_link in LINKS_COULD_BE_SOCIAL_MEDIA:
-        if social_link in url:
+    for social_site in LINKS_COULD_BE_SOCIAL_MEDIA:
+        if social_site in potential_social_url:
             return True
     return False
 
@@ -236,7 +194,7 @@ def parse_response(original_domain, url, r):
         m = re.search(pattern, new_url)
         if m is None or not url_is_valid(url_lowered):
             continue
-        if url_could_be_social_media(url_lowered) and url_is_valid_social_media(url_lowered) and url_is_new_social_link(url_lowered):
+        if url_could_be_social_media(url_lowered) and url_is_valid_social_media(url_lowered) and url_is_new(url_lowered, all_social_links):
             social_links.add(new_url)
             all_social_links.add(url_lowered)
         if url_could_contain_email_link(original_domain, parsed_url_object, url_lowered):
@@ -281,7 +239,7 @@ def scrape_emails_from_url(url):
         return
     status_code = r.status_code
     if r and r.headers:
-        content_type = r.headers.get('Content-Type', None)
+        content_type = r.headers.get('Content-Type', 'None')
     else:
         return
     if (status_code >= 300 or content_type.__class__.__name__ != 'str' or 'text/html' not in content_type.lower()):
@@ -325,7 +283,9 @@ def main_app():
     """
     INPUT_FILE = error_check_and_init_main_file()
     read_file_add_to_queue(INPUT_FILE)
-    create_temp_files()
+    create_temp_files([
+        TEMP_EMAIL_OUTPUT_FILE, TEMP_SOCIAL_OUTPUT_FILE, CHECKED_URLS
+    ])
     loop_all_links()
     write_results_to_file()
 

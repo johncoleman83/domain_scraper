@@ -5,18 +5,36 @@ an input file
 
 ## Usage
 
+* Check URL's from text file to scrape for emails and social media links. This also
+  checks common paths found from the input domain such as contact and team pages. This
+  does not store borken links, but does output them to STDOUT during runtime. This
+  does output all valid & unique emails addresses and social media links during runtime
+  so data is stored in the event of an error.
+
+```
+$ ./scrape_emails_and_social_media.py [FILE_WITH_URLS]
+```
+
 * To check all URLS from the same domain based off of one main input URL
 
 ```
-$ ./scrape_url.py [URL_TO_CHECK]
+$ ./scrape_url_and_check_broken_links.py [URL_TO_CHECK]
 ```
 
-* Check URL's from text file (a file with 2258 links took about 1 hour to
+* Check URL's for broken links from text file (a file with 2258 links took about 1 hour to
   complete on MacBook Pro 2017)
 
 ```
-$ ./scrape_file.py [FILE_WITH_URLS]
+$ ./check_file_for_broken_links.py [FILE_WITH_URLS]
 ```
+
+## Data storage
+
+Data is written to a file during runtime of the email and social media scraper.  Data is only
+written to files at program completion for the broken link checkers.
+
+TODO: The broken link checkers should output results to a file during runtime and not wait until
+the end of the program
 
 ## Example file & file cleanup
 
