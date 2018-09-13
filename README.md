@@ -1,7 +1,7 @@
-# broken_link_checker
+# domain_scraper
 
-Scrapes a domain to check status of all links or checks status of all links from
-an input file
+Scrapes domains from one input URL or from a file list of domains for broken links,
+valid emails and valid social media links.
 
 ## Usage
 
