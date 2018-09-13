@@ -12,21 +12,31 @@ import os.path
 import datetime
 import random
 
-# GLOBALS AND CONSTANTS
+# Storage
 all_links = set()
 all_social_links = set()
 all_emails = set()
 links_to_scrape_q = queue.Queue()
+
+# Requests
 TIMEOUT = (3, 10)
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
+}
+
+# FILES
 FILE_HASH = str(random.random()).split('.')[1]
 ALL_OUTPUT_FILE = './crh/email_social_links_' + FILE_HASH
 TEMP_EMAIL_OUTPUT_FILE = './crh/temp_emails_' + FILE_HASH
 TEMP_SOCIAL_OUTPUT_FILE = './crh/temp_social_media_' + FILE_HASH
 NEWLY_FOUND_URLS = './crh/newly_found_urls_' + FILE_HASH
 CHECKED_URLS = './crh/already_checked_urls_' + FILE_HASH
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
-}
+
+# REGEX
+EMAIL_PATH_PATTERN = re.compile('about|affiliations|board|departments|directory|governance|leadership|staff|team', re.IGNORECASE|re.DOTALL)
+INVALID_SOCIAL_MEDIA_PATTERN = re.compile('/home\?status|/intent/|share', re.IGNORECASE|re.DOTALL)
+VALID_SOCIAL_MEDIA_PATTERN = re.compile('twitter\.com|linkedin\.com|facebook\.com|github\.com', re.IGNORECASE|re.DOTALL)
+
 
 def error_check_and_init_main_file():
     """
@@ -101,17 +111,6 @@ def url_could_contain_email_link(original_domain, parsed_url_object, url):
     """
     checks if input url could contian a link with emails
     """
-    LINKS_COULD_CONTAIN_EMAILS = [
-        'about',
-        'affiliations',
-        'board',
-        'departments',
-        'directory',
-        'governance',
-        'leadership',
-        'staff',
-        'team'
-    ]
     if not original_domain or original_domain not in url:    return False
     if url_could_be_social_media(url):                       return False
     query = parsed_url_object.query
@@ -119,41 +118,22 @@ def url_could_contain_email_link(original_domain, parsed_url_object, url):
     path = parsed_url_object.path
     if path.__class__.__name__ != 'str' or len(path) < 4:    return False
     path = path.lower()
-    for word in LINKS_COULD_CONTAIN_EMAILS:
-        if word in path: return True
-    return False
+    m = re.search(EMAIL_PATH_PATTERN, path)
+    return m is not None
 
 def url_is_valid_social_media(social_url):
     """
     checks if input url could contian a social media link
     """
-    INVALID_SOCIAL_LINKS = [
-        '/home?status',
-        '/intent/',
-        'share',
-        'shareArticle',
-        'sharer',
-        'share.php'
-    ]
-    for invalid_word in INVALID_SOCIAL_LINKS:
-        if invalid_word in social_url:
-            return False
-    return True
+    m = re.search(INVALID_SOCIAL_MEDIA_PATTERN, social_url)
+    return m is None
 
 def url_could_be_social_media(potential_social_url):
     """
     checks if input url could contian a social media link
     """
-    LINKS_COULD_BE_SOCIAL_MEDIA = [
-        'linkedin.com',
-        'twitter.com',
-        'facebook.com',
-        'github.com',
-    ]
-    for social_site in LINKS_COULD_BE_SOCIAL_MEDIA:
-        if social_site in potential_social_url:
-            return True
-    return False
+    m = re.search(VALID_SOCIAL_MEDIA_PATTERN, potential_social_url)
+    return m is not None
 
 def do_social_media_checks(url_lowered):
     """
@@ -192,7 +172,7 @@ def parse_response(original_domain, r):
     parses response text for new links to add to queue
     """
     soup = BeautifulSoup(r.text, 'html.parser')
-    pattern = re.compile("(http.*\:\/\/.*\.+.*\/.*)")
+    pattern = re.compile('(http.*\:\/\/.*\.+.*\/.*)', re.IGNORECASE)
     social_links = set()
     for link in soup.find_all('a'):
         new_url = link.get('href', None)
@@ -295,7 +275,8 @@ def main_app():
         TEMP_EMAIL_OUTPUT_FILE, TEMP_SOCIAL_OUTPUT_FILE, CHECKED_URLS, NEWLY_FOUND_URLS
     ])
     loop_all_links()
-    write_results_to_file()
+    # No need anymore for this
+    # write_results_to_file()
 
 if __name__ == "__main__":
     """
