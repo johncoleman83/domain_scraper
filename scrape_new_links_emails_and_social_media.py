@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Scrapes links from argv 1 file for email addresses
+Scrapes links from argv 1 file for email addresses & social media
+looks for new links
 """
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
@@ -101,10 +102,10 @@ def url_is_valid(url):
     """
     checks if url is valid
     """
-    if not url_is_new(url, all_links): return False
     if url[:7] == 'mailto:':           return False
     if url[-5:] == '.aspx':            return False
     if url_is_image_or_css_link(url):  return False
+    if not url_is_new(url, all_links): return False
     return True
 
 def url_could_contain_email_link(original_domain, parsed_url_object, url):
@@ -220,7 +221,8 @@ def temp_write_updates_to_files(url, emails, social_links):
 
 def scrape_url(url):
     """
-    scrapes for emails that is from main domain website
+    makes request to input url and passes the response to be scraped and parsed
+    if it is not an error code response
     """
     try:
         r = requests.get(url, allow_redirects=True, timeout=TIMEOUT)

@@ -6,13 +6,20 @@ valid emails and valid social media links.
 ## Usage
 
 * Check URL's from text file to scrape for emails and social media links. This also
-  checks common paths found from the input domain such as contact and team pages. This
-  does not store borken links, but does output them to STDOUT during runtime. This
-  does output all valid & unique emails addresses and social media links during runtime
-  so data is stored in the event of an error.
+  checks common paths found from the input domain such as contact and team pages to add
+  to the queue to new URL's to scrape for emails and social media links. This
+  does not store broken links, but does output them to STDOUT during runtime. This
+  does save to a file all valid & unique emails addresses and social media links
+  during runtime so data is stored in the event of an error.
 
 ```
-$ ./scrape_emails_and_social_media.py [FILE_WITH_URLS]
+$ ./scrape_new_links_emails_and_social_media.py [FILE_WITH_URLS]
+```
+
+* Same as above, but do not check for new links to add to the queue
+
+```
+$ ./scrape_emails_and_social_media_no_new_links.py [FILE_WITH_URLS]
 ```
 
 * To check all URLS from the same domain based off of one main input URL
@@ -21,8 +28,7 @@ $ ./scrape_emails_and_social_media.py [FILE_WITH_URLS]
 $ ./scrape_url_and_check_broken_links.py [URL_TO_CHECK]
 ```
 
-* Check URL's for broken links from text file (a file with 2258 links took about 1 hour to
-  complete on MacBook Pro 2017)
+* Check URL's for broken links from text file
 
 ```
 $ ./check_file_for_broken_links.py [FILE_WITH_URLS]
