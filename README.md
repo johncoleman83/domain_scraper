@@ -22,6 +22,12 @@ $ ./scrape_new_links_emails_and_social_media.py [FILE_WITH_URLS]
 $ ./scrape_emails_and_social_media_no_new_links.py [FILE_WITH_URLS]
 ```
 
+* extract name associations from email list
+
+```
+$ ./extract_name_from_email.py [FILE_WITH_EMAILS]
+```
+
 * To check all URLS from the same domain based off of one main input URL
 
 ```
