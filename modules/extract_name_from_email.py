@@ -2,10 +2,10 @@
 """
 reads emails and extracts a username from them
 """
-from errors.input import check_argv
+from errors import input
+from file_io import write
 import os
 import queue
-import datetime
 import random
 
 # Storage
@@ -42,15 +42,6 @@ def read_file_add_to_queue(INPUT_FILE):
         for i, line in enumerate(open_file):
             new_email = line.strip()
             emails_q.put(new_email)
-
-def create_temp_files(file_list):
-    """
-    creates temp files to be appended to
-    """
-    FIRST_LINE = "TIME: {}\n".format(str(datetime.datetime.now()))
-    for f in file_list:
-        with open(f, "w", encoding="utf-8") as open_file:
-            open_file.write(FIRST_LINE)
 
 def temp_write_new_name_to_file(name_association):
     """
@@ -118,7 +109,7 @@ def main_app():
         os.path.basename(__file__), '[FILE TO BE SCRAPED]'
     )
     read_file_add_to_queue(INPUT_FILE)
-    create_temp_files([TEMP_EMAIL_OUTPUT_FILE])
+    write.initial_files([TEMP_EMAIL_OUTPUT_FILE])
     loop_all_emails()
 
 if __name__ == "__main__":

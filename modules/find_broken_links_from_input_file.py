@@ -2,13 +2,13 @@
 """
 Scrapes argv 1 input file for broken links
 """
+from errors import input
 import re
 import requests
 import datetime
 import random
 import queue
 import os
-from errors.input import check_argv
 
 broken_links = {}
 domain_links_q = queue.Queue()
@@ -90,7 +90,7 @@ def main_app():
     """
     completes all tasks of the application
     """
-    INPUT_FILE = check_argv(
+    INPUT_FILE = input.check_argv(
         os.path.basename(__file__), '[FILE TO BE SCRAPED]'
     )
     read_file_add_to_queue(INPUT_FILE)

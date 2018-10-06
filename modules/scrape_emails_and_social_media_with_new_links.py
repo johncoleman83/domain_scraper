@@ -5,7 +5,8 @@ looks for new links
 """
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
-from errors.input import check_argv
+from errors import input
+from file_io import write
 import queue
 import re
 import os
@@ -48,15 +49,6 @@ def read_file_add_to_queue(INPUT_FILE):
             if url_is_new(new_url, all_links):
                 all_links.add(new_url)
                 links_to_scrape_q.put(new_url)
-
-def create_temp_files(file_list):
-    """
-    creates temp files to be appended to
-    """
-    FIRST_LINE = "TIME: {}\n".format(str(datetime.datetime.now()))
-    for f in file_list:
-        with open(f, "w", encoding="utf-8") as open_file:
-            open_file.write(FIRST_LINE)
 
 def url_is_new(url, object_store):
     """
@@ -255,11 +247,11 @@ def main_app():
     """
     completes all tasks of the application
     """
-    INPUT_FILE = check_argv(
+    INPUT_FILE = input.check_argv(
         os.path.basename(__file__), '[FILE TO BE SCRAPED]'
     )
     read_file_add_to_queue(INPUT_FILE)
-    create_temp_files([
+    write.initial_files([
         TEMP_EMAIL_OUTPUT_FILE, TEMP_SOCIAL_OUTPUT_FILE, CHECKED_URLS, NEWLY_FOUND_URLS
     ])
     loop_all_links()
