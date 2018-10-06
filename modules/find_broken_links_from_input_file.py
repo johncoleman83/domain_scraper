@@ -24,7 +24,7 @@ def error_check_and_init_main_file():
     """
     if len(sys.argv) != 2:
         print("Usage:", file=sys.stderr)
-        print("$ ./scrape_url.py [FILE TO BE SCRAPED]", file=sys.stderr)
+        print("$ ./modules/find_broken_links_from_input_file.py [FILE TO BE SCRAPED]", file=sys.stderr)
         sys.exit(1)
     INPUT_FILE = sys.argv[1]
     if not os.path.isfile(INPUT_FILE):

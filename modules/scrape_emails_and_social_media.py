@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """
-Scrapes links from argv 1 file for email addresses & social media
-looks for new links
+Scrapes links from argv 1 file for email addresses and social media
+does not look for new links
 """
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse
 import queue
 import re
 import requests
@@ -27,10 +26,8 @@ HEADERS = {
 
 # FILES
 FILE_HASH = str(random.random()).split('.')[1]
-ALL_OUTPUT_FILE = './file_storage/email_social_links_' + FILE_HASH
 TEMP_EMAIL_OUTPUT_FILE = './file_storage/temp_emails_' + FILE_HASH
 TEMP_SOCIAL_OUTPUT_FILE = './file_storage/temp_social_media_' + FILE_HASH
-NEWLY_FOUND_URLS = './file_storage/newly_found_urls_' + FILE_HASH
 CHECKED_URLS = './file_storage/already_checked_urls_' + FILE_HASH
 
 # REGEX
@@ -45,7 +42,7 @@ def error_check_and_init_main_file():
     """
     if len(sys.argv) != 2:
         print("Usage:", file=sys.stderr)
-        print("$ ./scrape_url.py [FILE TO BE SCRAPED]", file=sys.stderr)
+        print("$ ./module/scrape_emails_and_social_media.py [FILE TO BE SCRAPED]", file=sys.stderr)
         sys.exit(1)
     INPUT_FILE = sys.argv[1]
     if not os.path.isfile(INPUT_FILE):
@@ -98,30 +95,6 @@ def url_is_image_or_css_link(url):
         if ext in url: return True
     return False
 
-def url_is_valid(url):
-    """
-    checks if url is valid
-    """
-    if url[:7] == 'mailto:':           return False
-    if url[-5:] == '.aspx':            return False
-    if url_is_image_or_css_link(url):  return False
-    if not url_is_new(url, all_links): return False
-    return True
-
-def url_could_contain_email_link(original_domain, parsed_url_object, url):
-    """
-    checks if input url could contian a link with emails
-    """
-    if not original_domain or original_domain not in url:    return False
-    if url_could_be_social_media(url):                       return False
-    query = parsed_url_object.query
-    if query.__class__.__name__ == 'str' and len(query) > 0: return False
-    path = parsed_url_object.path
-    if path.__class__.__name__ != 'str' or len(path) < 4:    return False
-    path = path.lower()
-    m = re.search(EMAIL_PATH_PATTERN, path)
-    return m is not None
-
 def url_is_valid_social_media(social_url):
     """
     checks if input url could contian a social media link
@@ -146,15 +119,6 @@ def do_social_media_checks(url_lowered):
         url_is_new(url_lowered, all_social_links)
     )
 
-def get_original_domain_from_url(parsed_url_object):
-    """
-    gets the original domain
-    """
-    original_domain = parsed_url_object.netloc
-    if original_domain.__class__.__name__ != 'str' or len(original_domain) == 0:
-        return None
-    return original_domain
-
 def parse_response_for_emails(r):
     """
     looks for emails in response
@@ -168,7 +132,7 @@ def parse_response_for_emails(r):
         all_emails.update(valid_emails)
     return valid_emails
 
-def parse_response(original_domain, r):
+def parse_response(r):
     """
     parses response text for new links to add to queue
     """
@@ -179,18 +143,12 @@ def parse_response(original_domain, r):
         new_url = link.get('href', None)
         if new_url.__class__.__name__ != 'str' or len(new_url) == 0: continue
         url_lowered = new_url.lower()
-        parsed_url_object = urlparse(url_lowered)
         m = re.search(pattern, new_url)
-        if m is None or not url_is_valid(url_lowered):
+        if m is None:
             continue
         if do_social_media_checks(url_lowered):
             social_links.add(new_url)
             all_social_links.add(url_lowered)
-        if url_could_contain_email_link(original_domain, parsed_url_object, url_lowered):
-            with open(NEWLY_FOUND_URLS, "a", encoding="utf-8") as open_file:
-                open_file.write("{}\n".format(new_url))
-            all_links.add(new_url)
-            links_to_scrape_q.put(new_url)
     emails = parse_response_for_emails(r)
     return emails, social_links
 
@@ -237,9 +195,7 @@ def scrape_url(url):
     if (status_code >= 300 or content_type.__class__.__name__ != 'str' or 'text/html' not in content_type.lower()):
         print('ERROR with URL: {}, status: {}, content-type: {}'.format(url, status_code, content_type))
         return
-    parsed_original_url_object = urlparse(url)
-    original_domain = get_original_domain_from_url(parsed_original_url_object)
-    emails, social_links = parse_response(original_domain, r)
+    emails, social_links = parse_response(r)
     temp_write_updates_to_files(url, emails, social_links)
 
 def loop_all_links():
@@ -251,22 +207,6 @@ def loop_all_links():
         scrape_url(url)
 
 
-def write_results_to_file():
-    """
-    final writing of results
-    """
-    FIRST_LINE = "TIME: {}\n".format(str(datetime.datetime.now()))
-    with open(ALL_OUTPUT_FILE, "w", encoding="utf-8") as open_file:
-        open_file.write(FIRST_LINE)
-        for url, meta in all_links.items():
-            if meta.__class__.__name__ == 'dict':
-                line = "url: {}\n".format(url)
-                if len(meta.get('emails', 0)) > 0:
-                    line += "emails: {}\n".format(meta.get('emails', 0))
-                if len(meta.get('social_media', 0)) > 0:
-                    line += "social_media: {}\n".format(meta.get('social_media', 0))
-                open_file.write(line)
-
 def main_app():
     """
     completes all tasks of the application
@@ -274,11 +214,9 @@ def main_app():
     INPUT_FILE = error_check_and_init_main_file()
     read_file_add_to_queue(INPUT_FILE)
     create_temp_files([
-        TEMP_EMAIL_OUTPUT_FILE, TEMP_SOCIAL_OUTPUT_FILE, CHECKED_URLS, NEWLY_FOUND_URLS
+        TEMP_EMAIL_OUTPUT_FILE, TEMP_SOCIAL_OUTPUT_FILE, CHECKED_URLS
     ])
     loop_all_links()
-    # No need anymore for this
-    # write_results_to_file()
 
 if __name__ == "__main__":
     """
