@@ -3,7 +3,23 @@
 import getopt, sys, os
 
 def start( args ):
+"""
+WIP
+Idea is to use input arguments to execute the appropriate script
+from modules
 
+optlist:
+--check=broken-links
+--extract=name-from-email
+--scrape=emais-socmedia
+--scrape=emails_and_social_media_no_new_links
+
+args:
+some input file with links
+
+usage:
+$ python3 optlis_option arg
+"""
 	longopts = [ "check=", "extract=", "scrape=" ]
 
 	optlist, args = getopt.getopt( args, '', longopts )
