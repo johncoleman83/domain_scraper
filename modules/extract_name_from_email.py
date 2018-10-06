@@ -2,9 +2,8 @@
 """
 reads emails and extracts a username from them
 """
+from errors.input import check_argv
 import queue
-import sys
-import os.path
 import datetime
 import random
 
@@ -33,26 +32,6 @@ GENERIC_NAMES = set([
     'support',
     'youth'
 ])
-
-# REGEX
-# EMAIL_PATH_PATTERN = re.compile('about|affiliations|board|departments|directory|governance|leadership|staff|team', re.IGNORECASE|re.DOTALL)
-# INVALID_SOCIAL_MEDIA_PATTERN = re.compile('/home\?status|/intent/|share', re.IGNORECASE|re.DOTALL)
-# VALID_SOCIAL_MEDIA_PATTERN = re.compile('twitter\.com|linkedin\.com|facebook\.com|github\.com', re.IGNORECASE|re.DOTALL)
-
-def error_check_and_init_main_file():
-    """
-    checks errors
-    """
-    if len(sys.argv) != 2:
-        print("Usage:", file=sys.stderr)
-        print("$ ./modules/extract_name_from_email.py resources/[FILE TO BE SCRAPED]", file=sys.stderr)
-        sys.exit(1)
-    INPUT_FILE = sys.argv[1]
-    if not os.path.isfile(INPUT_FILE):
-        print("please use a valid file", file=sys.stderr)
-        sys.exit(1)
-    return INPUT_FILE
-
 
 def read_file_add_to_queue(INPUT_FILE):
     """
@@ -134,7 +113,9 @@ def main_app():
     """
     completes all tasks of the application
     """
-    INPUT_FILE = error_check_and_init_main_file()
+    INPUT_FILE = error_check_and_init_main_file(
+        os.path.basename(__file__), '[FILE TO BE SCRAPED]'
+    )
     read_file_add_to_queue(INPUT_FILE)
     create_temp_files([TEMP_EMAIL_OUTPUT_FILE])
     loop_all_emails()

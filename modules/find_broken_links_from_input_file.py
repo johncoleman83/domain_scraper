@@ -4,11 +4,10 @@ Scrapes argv 1 input file for broken links
 """
 import re
 import requests
-import sys
-import os.path
 import datetime
 import random
 import queue
+from errors.input import check_argv
 
 broken_links = {}
 domain_links_q = queue.Queue()
@@ -17,21 +16,6 @@ OUTPUT_FILE = './file_storage/broken_links_' + str(random.random()).split('.')[1
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 }
-
-def error_check_and_init_main_file():
-    """
-    checks errors
-    """
-    if len(sys.argv) != 2:
-        print("Usage:", file=sys.stderr)
-        print("$ ./modules/find_broken_links_from_input_file.py resources/[FILE TO BE SCRAPED]", file=sys.stderr)
-        sys.exit(1)
-    INPUT_FILE = sys.argv[1]
-    if not os.path.isfile(INPUT_FILE):
-        print("please use a valid file", file=sys.stderr)
-        sys.exit(1)
-    return INPUT_FILE
-
 
 def read_file_add_to_queue(INPUT_FILE):
     """
@@ -105,7 +89,9 @@ def main_app():
     """
     completes all tasks of the application
     """
-    INPUT_FILE = error_check_and_init_main_file()
+    INPUT_FILE = check_argv(
+        os.path.basename(__file__), '[FILE TO BE SCRAPED]'
+    )
     read_file_add_to_queue(INPUT_FILE)
     domain_links_loop()
     write_results_to_file()

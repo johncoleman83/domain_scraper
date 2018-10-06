@@ -3,11 +3,11 @@
 Scrapes argv 1 input domain for broken links
 """
 from bs4 import BeautifulSoup
+import datetime
 import queue
 import re
 import requests
 import sys
-import datetime
 import random
 
 all_links = {}
