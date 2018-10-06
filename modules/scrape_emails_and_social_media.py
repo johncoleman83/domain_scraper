@@ -27,11 +27,11 @@ HEADERS = {
 
 # FILES
 FILE_HASH = str(random.random()).split('.')[1]
-ALL_OUTPUT_FILE = './crh/email_social_links_' + FILE_HASH
-TEMP_EMAIL_OUTPUT_FILE = './crh/temp_emails_' + FILE_HASH
-TEMP_SOCIAL_OUTPUT_FILE = './crh/temp_social_media_' + FILE_HASH
-NEWLY_FOUND_URLS = './crh/newly_found_urls_' + FILE_HASH
-CHECKED_URLS = './crh/already_checked_urls_' + FILE_HASH
+ALL_OUTPUT_FILE = '../file_storage/email_social_links_' + FILE_HASH
+TEMP_EMAIL_OUTPUT_FILE = '../file_storage/temp_emails_' + FILE_HASH
+TEMP_SOCIAL_OUTPUT_FILE = '../file_storage/temp_social_media_' + FILE_HASH
+NEWLY_FOUND_URLS = '../file_storage/newly_found_urls_' + FILE_HASH
+CHECKED_URLS = '../file_storage/already_checked_urls_' + FILE_HASH
 
 # REGEX
 EMAIL_PATH_PATTERN = re.compile('about|affiliations|board|departments|directory|governance|leadership|staff|team', re.IGNORECASE|re.DOTALL)
