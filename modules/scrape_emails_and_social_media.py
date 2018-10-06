@@ -42,7 +42,7 @@ def error_check_and_init_main_file():
     """
     if len(sys.argv) != 2:
         print("Usage:", file=sys.stderr)
-        print("$ ./module/scrape_emails_and_social_media.py [FILE TO BE SCRAPED]", file=sys.stderr)
+        print("$ ./module/scrape_emails_and_social_media.py resources/[FILE TO BE SCRAPED]", file=sys.stderr)
         sys.exit(1)
     INPUT_FILE = sys.argv[1]
     if not os.path.isfile(INPUT_FILE):

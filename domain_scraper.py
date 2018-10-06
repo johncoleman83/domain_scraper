@@ -35,5 +35,7 @@ $ python3 optlis_option arg
 	os.system( cmd )
 
 if __name__ == "__main__":
-
-	start( sys.argv[1:] )
+	print('This is a WIP entrypoint for all scripts')
+	print('please use this execuation command\n')
+	print('Usage:\n$ ./modules/[SCRIPT_TO_RUN] resources/[FILE_OR_URL_TO_SCRAPE]')
+	#start( sys.argv[1:] )

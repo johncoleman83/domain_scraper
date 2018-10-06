@@ -26,7 +26,7 @@ def error_check_and_init_main_domain():
     global original_domain
     if len(sys.argv) != 2:
         print("Usage:", file=sys.stderr)
-        print("$ ./module/find_broken_links_from_input_url.py [URL TO BE SCAPED]", file=sys.stderr)
+        print("$ ./module/find_broken_links_from_input_url.py resources/[URL TO BE SCAPED]", file=sys.stderr)
         sys.exit(1)
     url = sys.argv[1]
     if 'http' not in url or '://' not in url:
