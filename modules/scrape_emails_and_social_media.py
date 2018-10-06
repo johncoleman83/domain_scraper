@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from errors.input import check_argv
 import queue
 import re
+import os
 import requests
 import datetime
 import random

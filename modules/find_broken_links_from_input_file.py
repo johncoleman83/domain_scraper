@@ -7,6 +7,7 @@ import requests
 import datetime
 import random
 import queue
+import os
 from errors.input import check_argv
 
 broken_links = {}

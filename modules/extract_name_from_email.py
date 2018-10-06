@@ -3,6 +3,7 @@
 reads emails and extracts a username from them
 """
 from errors.input import check_argv
+import os
 import queue
 import datetime
 import random
