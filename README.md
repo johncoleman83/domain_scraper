@@ -25,7 +25,7 @@ $ ./modules/scrape_emails_and_social_media.py resources/[FILE_WITH_URLS]
 * To check all URLS from the same domain based off of one main input URL
 
 ```
-$ ./modules/scrape_url_and_check_broken_links.py resources/[URL_TO_CHECK]
+$ ./modules/scrape_url_and_check_broken_links.py [URL_TO_CHECK]
 ```
 
 * Check URL's for broken links from text file
