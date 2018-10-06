@@ -50,6 +50,8 @@ the end of the program
 
 ## Example file & file cleanup
 
+__how to cleanup a .csv file__
+
 ```
 $ cat example_file_bad_format.txt
 https://google.com/^Mhttps://cecinestpasun.site/^Mhttps://google.com/^Mhttp://www.davidjohncoleman.com/wp-content/uploads/2017/06/headshot-retro.png
