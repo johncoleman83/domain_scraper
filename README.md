@@ -73,6 +73,10 @@ http://www.davidjohncoleman.com/wp-content/uploads/2017/06/headshot-retro.png
 * David John Coleman II, [davidjohncoleman.com](http://www.davidjohncoleman.com/)
 | [@djohncoleman](https://twitter.com/djohncoleman)
 
+## Contributors
+
+* edikxl, [@edikxl](https://github.com/edikxl)
+
 ## License
 
 MIT License
