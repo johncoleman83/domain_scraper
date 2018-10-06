@@ -13,7 +13,7 @@ import queue
 broken_links = {}
 domain_links_q = queue.Queue()
 TIMEOUT = (3, 10)
-OUTPUT_FILE = './broken_links_' + str(random.random()).split('.')[1]
+OUTPUT_FILE = './file_storage/broken_links_' + str(random.random()).split('.')[1]
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 }

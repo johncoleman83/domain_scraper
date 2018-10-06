@@ -26,9 +26,9 @@ HEADERS = {
 
 # FILES
 FILE_HASH = str(random.random()).split('.')[1]
-TEMP_EMAIL_OUTPUT_FILE = '../file_storage/temp_emails_' + FILE_HASH
-TEMP_SOCIAL_OUTPUT_FILE = '../file_storage/temp_social_media_' + FILE_HASH
-CHECKED_URLS = '../file_storage/already_checked_urls_' + FILE_HASH
+TEMP_EMAIL_OUTPUT_FILE = './file_storage/temp_emails_' + FILE_HASH
+TEMP_SOCIAL_OUTPUT_FILE = './file_storage/temp_social_media_' + FILE_HASH
+CHECKED_URLS = './file_storage/already_checked_urls_' + FILE_HASH
 
 # REGEX
 EMAIL_PATH_PATTERN = re.compile('about|affiliations|board|departments|directory|governance|leadership|staff|team', re.IGNORECASE|re.DOTALL)

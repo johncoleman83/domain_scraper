@@ -13,31 +13,31 @@ valid emails and valid social media links.
   during runtime so data is stored in the event of an error.
 
 ```
-$ ./scrape_new_links_emails_and_social_media.py [FILE_WITH_URLS]
+$ ./modules/scrape_emails_and_social_media_with_new_links.py resources/[FILE_WITH_URLS]
 ```
 
 * Same as above, but do not check for new links to add to the queue
 
 ```
-$ ./scrape_emails_and_social_media_no_new_links.py [FILE_WITH_URLS]
-```
-
-* extract name associations from email list
-
-```
-$ ./extract_name_from_email.py [FILE_WITH_EMAILS]
+$ ./modules/scrape_emails_and_social_media.py resources/[FILE_WITH_URLS]
 ```
 
 * To check all URLS from the same domain based off of one main input URL
 
 ```
-$ ./scrape_url_and_check_broken_links.py [URL_TO_CHECK]
+$ ./modules/scrape_url_and_check_broken_links.py resources/[URL_TO_CHECK]
 ```
 
 * Check URL's for broken links from text file
 
 ```
-$ ./check_file_for_broken_links.py [FILE_WITH_URLS]
+$ ./modules/check_file_for_broken_links.py resources/[FILE_WITH_URLS]
+```
+
+* extract name associations from email list
+
+```
+$ ./modules/extract_name_from_email.py resources/[FILE_WITH_EMAILS]
 ```
 
 ## Data storage

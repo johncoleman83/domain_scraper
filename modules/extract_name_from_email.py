@@ -13,7 +13,7 @@ emails_q = queue.Queue()
 
 # FILES
 FILE_HASH = str(random.random()).split('.')[1]
-TEMP_EMAIL_OUTPUT_FILE = '../file_storage/email_name_associations_' + FILE_HASH
+TEMP_EMAIL_OUTPUT_FILE = './file_storage/email_name_associations_' + FILE_HASH
 
 # SUPPORT
 NAME_DIVIDERS = [ '.', '-', '_' ]
