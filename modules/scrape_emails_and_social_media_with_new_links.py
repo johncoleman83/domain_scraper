@@ -37,10 +37,7 @@ HEADERS = {
 # FILES
 FILE_HASH = str(random.random()).split('.')[1]
 ALL_OUTPUT_FILE = './file_storage/email_social_links_' + FILE_HASH
-TEMP_EMAIL_OUTPUT_FILE = './file_storage/temp_emails_' + FILE_HASH
-TEMP_SOCIAL_OUTPUT_FILE = './file_storage/temp_social_media_' + FILE_HASH
 NEWLY_FOUND_URLS = './file_storage/newly_found_urls_' + FILE_HASH
-CHECKED_URLS = './file_storage/already_checked_urls_' + FILE_HASH
 
 # REGEX
 EMAIL_PATH_PATTERN = re.compile('about|affiliations|board|departments|directory|governance|leadership|staff|team', re.IGNORECASE|re.DOTALL)
@@ -128,31 +125,6 @@ def parse_response(original_domain, r):
     emails = parse_response_for_emails(r)
     return emails, social_links
 
-def temp_write_updates_to_files(url, emails, social_links):
-    """
-    writes the temporary findings in case of crash
-    """
-    with open(CHECKED_URLS, "a", encoding="utf-8") as open_file:
-        open_file.write("{}\n".format(url))
-    if len(emails) + len(social_links) == 0:
-        del emails
-        del social_links
-        return
-    if len(emails) > 0:
-        with open(TEMP_EMAIL_OUTPUT_FILE, "a", encoding="utf-8") as open_file:
-            lines = ""
-            for e in emails:
-                lines += "{}\n".format(e)
-            open_file.write(lines)
-    if len(social_links) > 0:
-        with open(TEMP_SOCIAL_OUTPUT_FILE, "a", encoding="utf-8") as open_file:
-            lines = ""
-            for s in social_links:
-                lines += "{}\n".format(s)
-            open_file.write(lines)
-    del emails
-    del social_links
-
 def scrape_url(url):
     """
     makes request to input url and passes the response to be scraped and parsed
@@ -174,7 +146,7 @@ def scrape_url(url):
     parsed_original_url_object = urlparse(url)
     original_domain = get_original_domain_from_url(parsed_original_url_object)
     emails, social_links = parse_response(original_domain, r)
-    temp_write_updates_to_files(url, emails, social_links)
+    write.temp_write_updates_to_files(url, emails, social_links)
 
 def loop_all_links():
     """
@@ -208,7 +180,7 @@ def main_app(INPUT_FILE):
     """
     read_file_add_to_queue(INPUT_FILE)
     write.initial_files([
-        TEMP_EMAIL_OUTPUT_FILE, TEMP_SOCIAL_OUTPUT_FILE, CHECKED_URLS, NEWLY_FOUND_URLS
+        write.TEMP_EMAIL_OUTPUT_FILE, write.TEMP_SOCIAL_OUTPUT_FILE, write.CHECKED_URLS, NEWLY_FOUND_URLS
     ])
     loop_all_links()
     # No need anymore for this
