@@ -4,6 +4,7 @@ Scrapes argv 1 input domain for broken links
 """
 from bs4 import BeautifulSoup
 from modules.urls import helpers
+from urllib.parse import urlparse
 import datetime
 import queue
 import re
@@ -12,6 +13,7 @@ import sys
 import random
 
 all_links = {}
+original_domain = None
 domain_links_q = queue.Queue()
 external_and_image_links_q = queue.Queue()
 TIMEOUT = (3, 10)
@@ -20,40 +22,28 @@ HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 }
 
-def error_check_and_init_main_domain(INPUT_URL):
+def set_original_domain_from_url(url):
+    """
+    gets the original domain
+    """
+    global original_domain
+    parsed_url_object = urlparse(url)
+    original_domain = parsed_url_object.netloc
+    if original_domain.__class__.__name__ != 'str' or len(original_domain) == 0:
+        original_domain = None
+
+def error_check_and_init_main_domain(url):
     """
     checks errors and saves original_domain
     """
-    global original_domain
-    if len(INPUT_URL) != 2:
-        print("Usage:", file=sys.stderr)
-        print("$ ./module/find_broken_links_from_input_url.py resources/[URL TO BE SCAPED]", file=sys.stderr)
-        sys.exit(1)
-    url = INPUT_URL
-    if 'http' or '://' not in url:
+    if 'http' not in url or '://' not in url:
         print("please use a valid HTTP URL", file=sys.stderr)
         sys.exit(1)
-    url = add_terminating_slash_to_url(url)
-    pattern = re.compile("(\.{1}.*\.{1}.*\/.*)")
-    m = re.search(pattern, url)
-    if m is None:
-        pattern = re.compile("(:\/\/.*\.{1}.*\/.*)")
-        m = re.search(pattern, url)
-        if m is None:
-            print("please use a valid HTTP URL", file=sys.stderr)
-            sys.exit(1)
-        original_domain = m.groups()[0][3:-1]
-    else:
-        original_domain = m.groups()[0][1:-1]
-    return url
-
-def add_terminating_slash_to_url(url):
-    """
-    adds terminating slash if necessary to main input URL
-    """
-    if url[-1] != '/':
-        url += '/'
-    return url
+    set_original_domain_from_url(url.lower())
+    if original_domain is None:
+        print("please use a valid HTTP URL", file=sys.stderr)
+        sys.exit(1)
+    return url.lower()
 
 def parse_response_for_new_links(r):
     """
@@ -63,7 +53,10 @@ def parse_response_for_new_links(r):
     pattern = re.compile("(http.*\:\/\/.*\.+.*\/.*)")
     for link in soup.find_all('a'):
         new_url = link.get('href', None)
-        if new_url is None: continue
+        if new_url.__class__.__name__ != 'str' or len(new_url) == 0:
+            continue
+        else:
+            new_url = new_url.lower()
         m = re.search(pattern, new_url)
         if m is None or not helpers.url_is_new(new_url, all_links):
             continue

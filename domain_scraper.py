@@ -17,25 +17,24 @@ def parse_and_handle_args(args):
 			input_file = input_file.split('=')[1]
 		INPUT_FILE = os.path.join( os.getcwd(), input_file)
 	else:
-		INPUT_URL = args.input_file[0]
+		INPUT_URL = args.url[0]
+		INPUT_FILE = None
 	#Get args and pass input to modules
-	if args.extract:
-		extract.main_app(INPUT_FILE)
-	elif args.check:
-		check.main_app(INPUT_FILE)
-	elif args.url:
-		print('hi')
+	if args.url:
+		print('executing: {}'.format(url_input))
 		url_input.main_app(INPUT_URL)
+	elif args.check:
+		print('executing: {}'.format(check))
+		check.main_app(INPUT_FILE)
+	elif args.extract:
+		print('executing: {}'.format(extract))
+		extract.main_app(INPUT_FILE)
 	elif args.scrape:
+		print('executing: {}'.format(scrape))
 		scrape.main_app(INPUT_FILE)
 	elif args.scrape_n:
+		print('executing: {}'.format(scrape_n))
 		scrape_n.main_app(INPUT_FILE)
-	elif args.all:
-		extract.main_app(INPUT_FILE)
-		check.main_app(INPUT_FILE)
-		scrape.main_app(INPUT_FILE)
-		scrape_n.main_app(INPUT_FILE)
-
 
 def start( args ):
 	parser = argparse.ArgumentParser(
@@ -44,44 +43,49 @@ def start( args ):
 		from a file list of domains for broken links, 
 		valid emails, and valid social media links.''',
 	)
-	parser.add_argument('input_file',
-                        help='Indicate the input file to scrape.',
-                        type=str,
-						nargs='*')
-	parser.add_argument('--url',
-                        help='Indicate the url to scrape.',
-                        type=str,
-						nargs='*')
-	parser.add_argument('--check',
-						help='Find broken links from urls in file.',
-						const=True,
-						default=False,
-						type=bool,
-						nargs='?')
-	parser.add_argument('--extract',
-						help='Extract name from emails in file.',
-						const=True,
-						default=False,
-						type=bool,
-						nargs='?')
-	parser.add_argument('--scrape',
-						help='Scrape emails and social media urls from file.',
-						const=True,
-						default=False,
-						type=bool,
-						nargs='?')
-	parser.add_argument('--scrape-n',
-						help='Scrape emails and social media urls from file with new links.',
-						const=True,
-						default=False,
-						type=bool,
-						nargs='?')
-	parser.add_argument('--all',
-						help='Perform all actions on urls from file with links.',
-						const=True,
-						default=False,
-						type=bool,
-						nargs='?')
+	parser.add_argument(
+		'input_file',
+		help='Indicate the input file to scrape.',
+		type=str,
+		nargs='*'
+	)
+	parser.add_argument(
+		'--url',
+		help='Indicate the url to scrape.',
+		type=str,
+		nargs='*'
+	)
+	parser.add_argument(
+		'--check',
+		help='Find broken links from urls in file.',
+		const=True, default=False,
+		type=bool,
+		nargs='?'
+	)
+	parser.add_argument(
+		'--extract',
+		help='Extract name from emails in file.',
+		const=True,
+		default=False,
+		type=bool,
+		nargs='?'
+	)
+	parser.add_argument(
+		'--scrape',
+		help='Scrape emails and social media urls from file.',
+		const=True,
+		default=False,
+		type=bool,
+		nargs='?'
+	)
+	parser.add_argument(
+		'--scrape-n',
+		help='Scrape emails and social media urls from file with new links.',
+		const=True,
+		default=False,
+		type=bool,
+		nargs='?'
+	)
 
 	args = parser.parse_args()
 	parse_and_handle_args(args)
