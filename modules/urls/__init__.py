@@ -1,1 +1,1 @@
-from modules import urls
+from modules.urls import helpers

@@ -15,8 +15,7 @@ import requests
 # url helpers
 url_is_new = helpers.url_is_new
 url_is_image_or_css_link = helpers.url_is_image_or_css_link
-url_is_valid_social_media = helpers.url_is_valid_social_media
-url_could_be_social_media = helpers.url_could_be_social_media
+do_social_media_checks = helpers.do_social_media_checks
 
 # Storage
 all_links = set()
@@ -29,16 +28,6 @@ TIMEOUT = (3, 10)
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 }
-
-def do_social_media_checks(url_lowered):
-    """
-    runs all checks on social media
-    """
-    return (
-        url_could_be_social_media(url_lowered) and
-        url_is_valid_social_media(url_lowered) and
-        url_is_new(url_lowered, all_social_links)
-    )
 
 def parse_response_for_emails(r):
     """
@@ -67,7 +56,7 @@ def parse_response(r):
         m = re.search(pattern, new_url)
         if m is None:
             continue
-        if do_social_media_checks(url_lowered):
+        if do_social_media_checks(url_lowered, all_social_links):
             social_links.add(new_url)
             all_social_links.add(url_lowered)
     emails = parse_response_for_emails(r)

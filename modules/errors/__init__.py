@@ -1,1 +1,1 @@
-from modules.errors import insert as insert
+from modules.errors import insert

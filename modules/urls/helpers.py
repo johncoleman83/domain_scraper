@@ -34,6 +34,16 @@ def url_is_new(url, object_store):
     if url[:-1] in object_store:                           return False
     return True
 
+def do_social_media_checks(url_lowered, all_social_links):
+    """
+    runs all checks on social media
+    """
+    return (
+        url_could_be_social_media(url_lowered) and
+        url_is_valid_social_media(url_lowered) and
+        url_is_new(url_lowered, all_social_links)
+    )
+
 def url_is_image_or_css_link(url):
     """
     checks if url has image link in it

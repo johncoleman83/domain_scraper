@@ -19,8 +19,7 @@ import random
 url_is_new = helpers.url_is_new
 url_is_image_or_css_link = helpers.url_is_image_or_css_link
 url_is_valid = helpers.url_is_valid
-url_is_valid_social_media = helpers.url_is_valid_social_media
-url_could_be_social_media = helpers.url_could_be_social_media
+do_social_media_checks = helpers.do_social_media_checks
 
 # Storage
 all_links = set()
@@ -55,16 +54,6 @@ def url_could_contain_email_link(original_domain, parsed_url_object, url):
     path = path.lower()
     m = re.search(EMAIL_PATH_PATTERN, path)
     return m is not None
-
-def do_social_media_checks(url_lowered):
-    """
-    runs all checks on social media
-    """
-    return (
-        url_could_be_social_media(url_lowered) and
-        url_is_valid_social_media(url_lowered) and
-        url_is_new(url_lowered, all_social_links)
-    )
 
 def get_original_domain_from_url(parsed_url_object):
     """
@@ -103,7 +92,7 @@ def parse_response(original_domain, r):
         m = re.search(pattern, new_url)
         if m is None or not url_is_valid(url_lowered, all_links):
             continue
-        if do_social_media_checks(url_lowered):
+        if do_social_media_checks(url_lowered, all_social_links):
             social_links.add(new_url)
             all_social_links.add(url_lowered)
         if url_could_contain_email_link(original_domain, parsed_url_object, url_lowered):
