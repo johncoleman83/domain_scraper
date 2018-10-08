@@ -5,8 +5,39 @@ import argparse
 import random
 from modules import *
 
-def start( args ):
+def parse_and_handle_args(args):
+	#Set input var and build url path to input (points to working directory)
+	print(args)
+	if not args.url:
+		if args.input_file == []:
+			print('Usage:\n$ ./domain_scraper.py --help', file=sys.stderr)
+			sys.exit(1)
+		input_file = args.input_file[0]
+		if 'input_file=' in input_file:
+			input_file = input_file.split('=')[1]
+		INPUT_FILE = os.path.join( os.getcwd(), input_file)
+	else:
+		INPUT_URL = args.input_file[0]
+	#Get args and pass input to modules
+	if args.extract:
+		extract.main_app(INPUT_FILE)
+	elif args.check:
+		check.main_app(INPUT_FILE)
+	elif args.url:
+		print('hi')
+		url_input.main_app(INPUT_URL)
+	elif args.scrape:
+		scrape.main_app(INPUT_FILE)
+	elif args.scrape_n:
+		scrape_n.main_app(INPUT_FILE)
+	elif args.all:
+		extract.main_app(INPUT_FILE)
+		check.main_app(INPUT_FILE)
+		scrape.main_app(INPUT_FILE)
+		scrape_n.main_app(INPUT_FILE)
 
+
+def start( args ):
 	parser = argparse.ArgumentParser(
 		prog='domain_scraper',
 		description='''Scrapes domains from one input URL or 
@@ -53,34 +84,10 @@ def start( args ):
 						nargs='?')
 
 	args = parser.parse_args()
-
-	# Parse arguments
-
-	#Set input var and build url path to input (points to working directory)
-	if not args.url:  
-		INPUT_FILE = os.path.join( os.getcwd(), str(args.input_file))
-	else:
-		INPUT_URL = str(args.input_file)
-	#Get args and pass input to modules
-	if args.extract:
-		extract.main_app(INPUT_FILE)
-	elif args.check:
-		check.main_app(INPUT_FILE)
-	elif args.url:
-		print('hi')
-		url_input.main_app(INPUT_URL)
-	elif args.scrape:
-		scrape.main_app(INPUT_FILE)
-	elif args.scrape_n:
-		scrape_n.main_app(INPUT_FILE)
-	elif args.all:
-		extract.main_app(INPUT_FILE)
-		check.main_app(INPUT_FILE)
-		scrape.main_app(INPUT_FILE)
-		scrape_n.main_app(INPUT_FILE)
+	parse_and_handle_args(args)
 
 if __name__ == "__main__":
-	#print('This is a WIP entrypoint for all scripts')
-	#print('please use this execuation command\n')
-	#print('Usage:\n$ ./modules/[SCRIPT_TO_RUN] resources/[FILE_OR_URL_TO_SCRAPE]')
+	if len(sys.argv) <= 2 and '--help' not in sys.argv:
+		print('Usage:\n$ ./domain_scraper.py --help', file=sys.stderr)
+		sys.exit(1)
 	start( sys.argv[1:] )
