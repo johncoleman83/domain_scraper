@@ -22,5 +22,5 @@ def check_argv(this_file, resource):
 if __name__ == "__main__":
     """
     MAIN APP
-    """
+    """ 
     print('usage: import error_check')

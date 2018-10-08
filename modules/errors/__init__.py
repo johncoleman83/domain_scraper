@@ -1,0 +1,1 @@
+from modules.errors import insert as insert

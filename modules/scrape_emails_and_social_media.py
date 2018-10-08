@@ -4,8 +4,8 @@ Scrapes links from argv 1 file for email addresses and social media
 does not look for new links
 """
 from bs4 import BeautifulSoup
-from errors import input
-from file_io import write
+from modules.errors import insert
+from modules.file_io import write
 import queue
 import re
 import os
@@ -182,13 +182,10 @@ def loop_all_links():
         scrape_url(url)
 
 
-def main_app():
+def main_app(INPUT_FILE):
     """
     completes all tasks of the application
     """
-    INPUT_FILE = input.check_argv(
-        os.path.basename(__file__), '[FILE TO BE SCRAPED]'
-    )
     read_file_add_to_queue(INPUT_FILE)
     write.initial_files([
         TEMP_EMAIL_OUTPUT_FILE, TEMP_SOCIAL_OUTPUT_FILE, CHECKED_URLS
