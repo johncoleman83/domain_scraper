@@ -19,17 +19,17 @@ HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 }
 
-def error_check_and_init_main_domain():
+def error_check_and_init_main_domain(INPUT_URL):
     """
     checks errors and saves original_domain
     """
     global original_domain
-    if len(sys.argv) != 2:
+    if len(INPUT_URL) != 2:
         print("Usage:", file=sys.stderr)
         print("$ ./module/find_broken_links_from_input_url.py resources/[URL TO BE SCAPED]", file=sys.stderr)
         sys.exit(1)
-    url = sys.argv[1]
-    if 'http' not in url or '://' not in url:
+    url = INPUT_URL
+    if 'http' or '://' not in url:
         print("please use a valid HTTP URL", file=sys.stderr)
         sys.exit(1)
     url = add_terminating_slash_to_url(url)
@@ -151,11 +151,11 @@ def write_results_to_file():
                 line = "{} - {}\n".format(l, s)
                 open_file.write(line)
 
-def main_app():
+def main_app(INPUT_URL):
     """
     completes all tasks of the application
     """
-    url = error_check_and_init_main_domain()
+    url = error_check_and_init_main_domain(INPUT_URL)
     all_links[url] = None
     domain_links_q.put(url)
     domain_links_loop()

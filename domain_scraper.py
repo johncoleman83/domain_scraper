@@ -17,6 +17,10 @@ def start( args ):
                         help='Indicate the input file to scrape.',
                         type=str,
 						nargs='*')
+	parser.add_argument('--url',
+                        help='Indicate the url to scrape.',
+                        type=str,
+						nargs='*')
 	parser.add_argument('--check',
 						help='Find broken links from urls in file.',
 						const=True,
@@ -52,14 +56,19 @@ def start( args ):
 
 	# Parse arguments
 
-	#Set input var and build url path to input (points to working directory)  
-	INPUT_FILE = os.path.join( os.getcwd(), str(args.input_file[0]))
-	
+	#Set input var and build url path to input (points to working directory)
+	if not args.url:  
+		INPUT_FILE = os.path.join( os.getcwd(), str(args.input_file))
+	else:
+		INPUT_URL = str(args.input_file)
 	#Get args and pass input to modules
 	if args.extract:
 		extract.main_app(INPUT_FILE)
 	elif args.check:
 		check.main_app(INPUT_FILE)
+	elif args.url:
+		print('hi')
+		url_input.main_app(INPUT_URL)
 	elif args.scrape:
 		scrape.main_app(INPUT_FILE)
 	elif args.scrape_n:
