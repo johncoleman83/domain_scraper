@@ -2,8 +2,8 @@
 """
 reads emails and extracts a username from them
 """
-from errors import input
-from file_io import write
+from modules.errors import insert
+from modules.file_io import write
 import os
 import queue
 import random
@@ -101,13 +101,10 @@ def loop_all_emails():
         temp_write_new_name_to_file(name_association.strip())
 
 
-def main_app():
+def main_app(INPUT_FILE):
     """
     completes all tasks of the application
     """
-    INPUT_FILE = error_check_and_init_main_file(
-        os.path.basename(__file__), '[FILE TO BE SCRAPED]'
-    )
     read_file_add_to_queue(INPUT_FILE)
     write.initial_files([TEMP_EMAIL_OUTPUT_FILE])
     loop_all_emails()

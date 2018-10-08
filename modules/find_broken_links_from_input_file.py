@@ -2,7 +2,7 @@
 """
 Scrapes argv 1 input file for broken links
 """
-from errors import input
+from modules.errors import insert
 import re
 import requests
 import datetime
@@ -86,13 +86,10 @@ def write_results_to_file():
             open_file.write(line)
 
 
-def main_app():
+def main_app(INPUT_FILE):
     """
     completes all tasks of the application
     """
-    INPUT_FILE = input.check_argv(
-        os.path.basename(__file__), '[FILE TO BE SCRAPED]'
-    )
     read_file_add_to_queue(INPUT_FILE)
     domain_links_loop()
     write_results_to_file()

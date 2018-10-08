@@ -5,8 +5,8 @@ looks for new links
 """
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
-from errors import input
-from file_io import write
+from modules.errors import insert
+from modules.file_io import write
 import queue
 import re
 import os
@@ -235,6 +235,7 @@ def write_results_to_file():
     with open(ALL_OUTPUT_FILE, "w", encoding="utf-8") as open_file:
         open_file.write(FIRST_LINE)
         for url, meta in all_links.items():
+
             if meta.__class__.__name__ == 'dict':
                 line = "url: {}\n".format(url)
                 if len(meta.get('emails', 0)) > 0:
@@ -243,13 +244,10 @@ def write_results_to_file():
                     line += "social_media: {}\n".format(meta.get('social_media', 0))
                 open_file.write(line)
 
-def main_app():
+def main_app(INPUT_FILE):
     """
     completes all tasks of the application
     """
-    INPUT_FILE = input.check_argv(
-        os.path.basename(__file__), '[FILE TO BE SCRAPED]'
-    )
     read_file_add_to_queue(INPUT_FILE)
     write.initial_files([
         TEMP_EMAIL_OUTPUT_FILE, TEMP_SOCIAL_OUTPUT_FILE, CHECKED_URLS, NEWLY_FOUND_URLS
