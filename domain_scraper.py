@@ -6,7 +6,10 @@ import random
 from modules import *
 
 def parse_and_handle_args(args):
+	"""
+	Handles arguments extracted from the user inputs
 	#Set input var and build url path to input (points to working directory)
+	"""
 	print('your selection:\n{}'.format(args))
 	if not args.url:
 		if args.input_file == []:
@@ -19,7 +22,6 @@ def parse_and_handle_args(args):
 	else:
 		INPUT_URL = args.url[0]
 		INPUT_FILE = None
-	#Get args and pass input to modules
 	if args.url:
 		print('executing: {}'.format(url_input))
 		url_input.main_app(INPUT_URL)
@@ -36,7 +38,10 @@ def parse_and_handle_args(args):
 		print('executing: {}'.format(scrape_n))
 		scrape_n.main_app(INPUT_FILE)
 
-def start( args ):
+def init_parser():
+	"""
+	sets up parser with expected arguments
+	"""
 	parser = argparse.ArgumentParser(
 		prog='domain_scraper',
 		description='''Scrapes domains from one input URL or 
@@ -86,12 +91,18 @@ def start( args ):
 		type=bool,
 		nargs='?'
 	)
+	return parser
 
-	args = parser.parse_args()
-	parse_and_handle_args(args)
+def main_app():
+	"""
+	MAIN APP
+	"""
+	parser = init_parser()
+	parsed_args = parser.parse_args()
+	parse_and_handle_args(parsed_args)
 
 if __name__ == "__main__":
 	if len(sys.argv) <= 2 and '--help' not in sys.argv:
 		print('Usage:\n$ ./domain_scraper.py --help', file=sys.stderr)
 		sys.exit(1)
-	start( sys.argv[1:] )
+	main_app()
