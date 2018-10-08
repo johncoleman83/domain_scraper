@@ -128,4 +128,4 @@ if __name__ == "__main__":
     """
     MAIN APP
     """
-    main_app()
+    print('usage: import this')

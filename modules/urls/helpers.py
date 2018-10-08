@@ -59,4 +59,4 @@ if __name__ == "__main__":
     """
     MAIN APP
     """
-    print('usage: import initial_files from urls.helpers')
+    print('usage: import this')

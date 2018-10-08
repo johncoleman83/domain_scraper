@@ -49,4 +49,4 @@ if __name__ == "__main__":
     """
     MAIN APP
     """
-    print('usage: import initial_files from file_io.write')
+    print('usage: import this')

@@ -23,4 +23,4 @@ if __name__ == "__main__":
     """
     MAIN APP
     """ 
-    print('usage: import error_check')
+    print('usage: import this')
