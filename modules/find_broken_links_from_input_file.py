@@ -3,6 +3,7 @@
 Scrapes argv 1 input file for broken links
 """
 from modules.errors import insert
+from modules.urls.helpers import url_is_new
 import re
 import requests
 import datetime
@@ -27,20 +28,6 @@ def read_file_add_to_queue(INPUT_FILE):
             new_link = line.strip()
             if url_is_new(new_link, broken_links):
                 domain_links_q.put(new_link)
-
-
-def url_is_new(url, object_store):
-    """
-    checks if URL exists in reviewed storage of URLs
-    """
-    if url in object_store:                                return False
-    if url.replace('www.', '') in object_store:            return False
-    if url.replace('://', '://www.') in object_store:      return False
-    if url.replace('http://', 'https://') in object_store: return False
-    if url.replace('https://', 'http://') in object_store: return False
-    if url + '/' in object_store:                          return False
-    if url[:-1] in object_store:                           return False
-    return True
 
 def check_url_and_add_to_lists(url):
     """

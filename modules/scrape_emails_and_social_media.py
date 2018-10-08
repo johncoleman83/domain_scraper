@@ -6,11 +6,18 @@ does not look for new links
 from bs4 import BeautifulSoup
 from modules.errors import insert
 from modules.file_io import write
+from modules.urls import helpers
 import queue
 import re
 import os
 import requests
 import random
+
+# url helpers
+url_is_new = helpers.url_is_new
+url_is_image_or_css_link = helpers.url_is_image_or_css_link
+url_is_valid_social_media = helpers.url_is_valid_social_media
+url_could_be_social_media = helpers.url_could_be_social_media
 
 # Storage
 all_links = set()
@@ -30,11 +37,6 @@ TEMP_EMAIL_OUTPUT_FILE = './file_storage/temp_emails_' + FILE_HASH
 TEMP_SOCIAL_OUTPUT_FILE = './file_storage/temp_social_media_' + FILE_HASH
 CHECKED_URLS = './file_storage/already_checked_urls_' + FILE_HASH
 
-# REGEX
-EMAIL_PATH_PATTERN = re.compile('about|affiliations|board|departments|directory|governance|leadership|staff|team', re.IGNORECASE|re.DOTALL)
-INVALID_SOCIAL_MEDIA_PATTERN = re.compile('/home\?status|/intent/|share', re.IGNORECASE|re.DOTALL)
-VALID_SOCIAL_MEDIA_PATTERN = re.compile('twitter\.com|linkedin\.com|facebook\.com|github\.com', re.IGNORECASE|re.DOTALL)
-
 def read_file_add_to_queue(INPUT_FILE):
     """
     reads links from input file and adds them to a queue
@@ -45,44 +47,6 @@ def read_file_add_to_queue(INPUT_FILE):
             if url_is_new(new_url, all_links):
                 all_links.add(new_url)
                 links_to_scrape_q.put(new_url)
-
-def url_is_new(url, object_store):
-    """
-    checks if URL exists in reviewed storage of URLs
-    """
-    if url in object_store:                                return False
-    if url.replace('www.', '') in object_store:            return False
-    if url.replace('://', '://www.') in object_store:      return False
-    if url.replace('http://', 'https://') in object_store: return False
-    if url.replace('https://', 'http://') in object_store: return False
-    if url + '/' in object_store:                          return False
-    if url[:-1] in object_store:                           return False
-    return True
-
-def url_is_image_or_css_link(url):
-    """
-    checks if url has image link in it
-    """
-    IMAGE_EXTENSIONS = [
-        '.png', '.jpg', '@md.x', '.pdf', '.calendar.google.com'
-    ]
-    for ext in IMAGE_EXTENSIONS:
-        if ext in url: return True
-    return False
-
-def url_is_valid_social_media(social_url):
-    """
-    checks if input url could contian a social media link
-    """
-    m = re.search(INVALID_SOCIAL_MEDIA_PATTERN, social_url)
-    return m is None
-
-def url_could_be_social_media(potential_social_url):
-    """
-    checks if input url could contian a social media link
-    """
-    m = re.search(VALID_SOCIAL_MEDIA_PATTERN, potential_social_url)
-    return m is not None
 
 def do_social_media_checks(url_lowered):
     """

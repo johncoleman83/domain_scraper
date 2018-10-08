@@ -3,6 +3,7 @@
 Scrapes argv 1 input domain for broken links
 """
 from bs4 import BeautifulSoup
+from modules.urls.helpers import url_is_new
 import datetime
 import queue
 import re
@@ -46,7 +47,6 @@ def error_check_and_init_main_domain(INPUT_URL):
         original_domain = m.groups()[0][1:-1]
     return url
 
-
 def add_terminating_slash_to_url(url):
     """
     adds terminating slash if necessary to main input URL
@@ -54,19 +54,6 @@ def add_terminating_slash_to_url(url):
     if url[-1] != '/':
         url += '/'
     return url
-
-def url_is_new(url, object_store):
-    """
-    checks if URL exists in reviewed storage of URLs
-    """
-    if url in object_store:                                return False
-    if url.replace('www.', '') in object_store:            return False
-    if url.replace('://', '://www.') in object_store:      return False
-    if url.replace('http://', 'https://') in object_store: return False
-    if url.replace('https://', 'http://') in object_store: return False
-    if url + '/' in object_store:                          return False
-    if url[:-1] in object_store:                           return False
-    return True
 
 def parse_response_for_new_links(r):
     """
