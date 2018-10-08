@@ -5,7 +5,7 @@ does not look for new links
 """
 from bs4 import BeautifulSoup
 from modules.errors import insert
-from modules.file_io import write
+from modules.file_io import io
 from modules.urls import helpers
 import queue
 import re
@@ -29,17 +29,6 @@ TIMEOUT = (3, 10)
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
 }
-
-def read_file_add_to_queue(INPUT_FILE):
-    """
-    reads links from input file and adds them to a queue
-    """
-    with open(INPUT_FILE, "r", encoding="utf-8") as open_file:
-        for i, line in enumerate(open_file):
-            new_url = line.strip()
-            if url_is_new(new_url, all_links):
-                all_links.add(new_url)
-                links_to_scrape_q.put(new_url)
 
 def do_social_media_checks(url_lowered):
     """
@@ -103,7 +92,7 @@ def scrape_url(url):
         print('ERROR with URL: {}, status: {}, content-type: {}'.format(url, status_code, content_type))
         return
     emails, social_links = parse_response(r)
-    write.temp_write_updates_to_files(url, emails, social_links)
+    io.temp_write_updates_to_files(url, emails, social_links)
 
 def loop_all_links():
     """
@@ -118,9 +107,9 @@ def main_app(INPUT_FILE):
     """
     completes all tasks of the application
     """
-    read_file_add_to_queue(INPUT_FILE)
-    write.initial_files([
-        write.TEMP_EMAIL_OUTPUT_FILE, write.TEMP_SOCIAL_OUTPUT_FILE, write.CHECKED_URLS
+    io.read_file_add_to_queue(INPUT_FILE, all_links, links_to_scrape_q)
+    io.initial_files([
+        io.TEMP_EMAIL_OUTPUT_FILE, io.TEMP_SOCIAL_OUTPUT_FILE, io.CHECKED_URLS
     ])
     loop_all_links()
 

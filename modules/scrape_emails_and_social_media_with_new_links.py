@@ -6,7 +6,7 @@ looks for new links
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 from modules.errors import insert
-from modules.file_io import write
+from modules.file_io import io
 from modules.urls import helpers
 import queue
 import re
@@ -41,17 +41,6 @@ NEWLY_FOUND_URLS = './file_storage/newly_found_urls_' + FILE_HASH
 
 # REGEX
 EMAIL_PATH_PATTERN = re.compile('about|affiliations|board|departments|directory|governance|leadership|staff|team', re.IGNORECASE|re.DOTALL)
-
-def read_file_add_to_queue(INPUT_FILE):
-    """
-    reads links from input file and adds them to a queue
-    """
-    with open(INPUT_FILE, "r", encoding="utf-8") as open_file:
-        for i, line in enumerate(open_file):
-            new_url = line.strip()
-            if url_is_new(new_url, all_links):
-                all_links.add(new_url)
-                links_to_scrape_q.put(new_url)
 
 def url_could_contain_email_link(original_domain, parsed_url_object, url):
     """
@@ -146,7 +135,7 @@ def scrape_url(url):
     parsed_original_url_object = urlparse(url)
     original_domain = get_original_domain_from_url(parsed_original_url_object)
     emails, social_links = parse_response(original_domain, r)
-    write.temp_write_updates_to_files(url, emails, social_links)
+    io.temp_write_updates_to_files(url, emails, social_links)
 
 def loop_all_links():
     """
@@ -178,9 +167,9 @@ def main_app(INPUT_FILE):
     """
     completes all tasks of the application
     """
-    read_file_add_to_queue(INPUT_FILE)
-    write.initial_files([
-        write.TEMP_EMAIL_OUTPUT_FILE, write.TEMP_SOCIAL_OUTPUT_FILE, write.CHECKED_URLS, NEWLY_FOUND_URLS
+    io.read_file_add_to_queue(INPUT_FILE, all_links, links_to_scrape_q)
+    io.initial_files([
+        io.TEMP_EMAIL_OUTPUT_FILE, io.TEMP_SOCIAL_OUTPUT_FILE, io.CHECKED_URLS, NEWLY_FOUND_URLS
     ])
     loop_all_links()
     # No need anymore for this

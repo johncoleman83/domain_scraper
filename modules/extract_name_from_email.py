@@ -3,7 +3,7 @@
 reads emails and extracts a username from them
 """
 from modules.errors import insert
-from modules.file_io import write
+from modules.file_io import io
 import os
 import queue
 import random
@@ -106,7 +106,7 @@ def main_app(INPUT_FILE):
     completes all tasks of the application
     """
     read_file_add_to_queue(INPUT_FILE)
-    write.initial_files([TEMP_EMAIL_OUTPUT_FILE])
+    io.initial_files([TEMP_EMAIL_OUTPUT_FILE])
     loop_all_emails()
 
 if __name__ == "__main__":

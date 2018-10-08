@@ -1,1 +1,1 @@
-from modules.file_io import write as write
+from modules.file_io import io

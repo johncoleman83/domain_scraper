@@ -3,7 +3,7 @@
 Scrapes argv 1 input domain for broken links
 """
 from bs4 import BeautifulSoup
-from modules.urls.helpers import url_is_new
+from modules.urls import helpers
 import datetime
 import queue
 import re
@@ -65,7 +65,7 @@ def parse_response_for_new_links(r):
         new_url = link.get('href', None)
         if new_url is None: continue
         m = re.search(pattern, new_url)
-        if m is None or not url_is_new(new_url, all_links):
+        if m is None or not helpers.url_is_new(new_url, all_links):
             continue
         all_links[new_url] = None
         if original_domain in new_url:
@@ -75,7 +75,7 @@ def parse_response_for_new_links(r):
     for link in soup.find_all('img'):
         new_url = link.get('src')
         m = re.search(pattern, new_url)
-        if m is None or not url_is_new(new_url, all_links):
+        if m is None or not helpers.url_is_new(new_url, all_links):
             continue
         all_links[new_url] = None
         external_and_image_links_q.put(new_url)
