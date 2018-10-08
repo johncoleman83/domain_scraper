@@ -12,41 +12,41 @@ valid emails and valid social media links.
   does save to a file all valid & unique emails addresses and social media links
   during runtime so data is stored in the event of an error.
 
+*  Scrape for emails & social media links, checking for promising new links to scrape
+
 ```shell
-$ python domain_scraper.py [INPUT FILE] --scrape-n
+$ ./domain_scraper.py [INPUT FILE] --scrape-n
 ```
 
 *  Same as above, but do not check for new links to add to the queue
 
 ```shell
-$ python domain_scraper.py [INPUT FILE] --scrape
+$ ./domain_scraper.py [INPUT FILE] --scrape
 ```
 
-*  To check all URLS from the same domain based off of one main input URL
+*  To check for broken links only from all URLS from the same domain based off of one main input URL
 
 ```shell
-$ python domain_scraper.py --url [URL TO SCRAPE]
+$ ./domain_scraper.py --url [URL TO SCRAPE]
 ```
 
 *  Check URL's for broken links from text file
 
 ```shell
-$ python domain_scraper.py [INPUT FILE] --check
+$ ./domain_scraper.py [INPUT FILE] --check
 ```
 
-*  extract name associations from email list
+*  extract name associations from email list (used with results from scraping)
 
 ```shell
-$ python domain_scraper.py [INPUT FILE] --extract
+$ ./domain_scraper.py [INPUT FILE] --extract
 ```
 
 ## Data storage
 
-Data is written to a file during runtime of the email and social media scraper.  Data is only
-written to files at program completion for the broken link checkers.
+Data is written to a file during runtime of the email and social media scraper.  Data is only written to files at program completion for the broken link checkers.
 
-TODO: The broken link checkers should output results to a file during runtime and not wait until
-the end of the program
+TODO: The broken link checkers should output results to a file during runtime and not wait until the end of the program
 
 ## Example file & file cleanup
 
@@ -77,6 +77,7 @@ http://www.davidjohncoleman.com/wp-content/uploads/2017/06/headshot-retro.png
 
 *  edikxl, [@edikxl](https://github.com/edikxl)
 *  mrvnmchm, [@mrvnmchm](https://github.com/mrvnmchm)
+
 ## License
 
 MIT License

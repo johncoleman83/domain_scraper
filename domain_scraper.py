@@ -7,7 +7,7 @@ from modules import *
 
 def parse_and_handle_args(args):
 	#Set input var and build url path to input (points to working directory)
-	print(args)
+	print('your selection:\n{}'.format(args))
 	if not args.url:
 		if args.input_file == []:
 			print('Usage:\n$ ./domain_scraper.py --help', file=sys.stderr)
