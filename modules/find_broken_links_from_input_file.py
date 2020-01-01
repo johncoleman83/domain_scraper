@@ -12,7 +12,6 @@ import queue
 import os
 
 all_links = set()
-broken_links = {}
 domain_links_q = queue.Queue()
 TIMEOUT = (3, 10)
 OUTPUT_FILE = './file_storage/broken_links_' + str(random.random()).split('.')[1]
@@ -48,20 +47,7 @@ def domain_links_loop():
         url = domain_links_q.get()
         status = check_url_and_add_to_lists(url)
         if status is not None:
-            broken_links[url] = status
-
-def write_results_to_file():
-    """
-    final writing of results
-    """
-    FIRST_LINE = """TIME: {}
-        link                  -                   status
-""".format(str(datetime.datetime.now()))
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as open_file:
-        open_file.write(FIRST_LINE)
-        for l, s in broken_links.items():
-            line = "{} - {}\n".format(l, s)
-            open_file.write(line)
+            io.write_one_link_result_to(OUTPUT_FILE, url, status)
 
 
 def execute(INPUT_FILE):
@@ -69,8 +55,8 @@ def execute(INPUT_FILE):
     completes all tasks of the application
     """
     io.read_file_add_to_queue(INPUT_FILE, all_links, domain_links_q)
+    io.init_file_with_datetime(OUTPUT_FILE)
     domain_links_loop()
-    write_results_to_file()
 
 if __name__ == "__main__":
     """

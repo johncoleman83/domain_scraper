@@ -46,10 +46,9 @@ $ ./domain_scraper.py [INPUT FILE] --extract
 
 Data is written to a file during runtime of the email and social media scraper.
 
-* Data is only written to files at program completion for the broken link checkers.
+* Data is written to file at runtime.
+* Specific errors are not written to the file, but instead printed to STDOUT
 * Files are stored in path `./file_storage`
-
-TODO: The broken link checkers should output results to a file during runtime and not wait until the end of the program
 
 ## Example file & file cleanup
 

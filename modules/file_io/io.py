@@ -45,6 +45,25 @@ def initial_files(file_list):
         with open(f, "w", encoding="utf-8") as open_file:
             open_file.write(FIRST_LINE)
 
+def init_file_with_datetime(file_name):
+    """
+    final writing of results
+    """
+    FIRST_LINE = """TIME: {}
+        link                  -                   status
+""".format(str(datetime.datetime.now()))
+    with open(file_name, "w", encoding="utf-8") as open_file:
+        open_file.write(FIRST_LINE)
+
+
+def write_one_link_result_to(file_name, link, status):
+    """
+    final writing of results
+    """
+    with open(file_name, "a", encoding="utf-8") as open_file:
+        line = "{} - {}\n".format(link, status)
+        open_file.write(line)
+
 def temp_write_updates_to_files(url, emails, social_links):
     """
     writes the temporary findings in case of crash
