@@ -131,7 +131,7 @@ def write_results_to_file():
                 line = "{} - {}\n".format(l, s)
                 open_file.write(line)
 
-def main_app(INPUT_URL):
+def execute(INPUT_URL):
     """
     completes all tasks of the application
     """

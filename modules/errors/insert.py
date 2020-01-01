@@ -11,7 +11,7 @@ def check_argv(this_file, resource):
     """
     if len(sys.argv) != 2:
         print("Usage:", file=sys.stderr)
-        print("$ ./modules/{} resources/{}".format(this_file, resource), file=sys.stderr)
+        print("$ ./modules/{} examples/{}".format(this_file, resource), file=sys.stderr)
         sys.exit(1)
     INPUT_FILE = sys.argv[1]
     if not os.path.isfile(INPUT_FILE):

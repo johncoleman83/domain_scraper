@@ -24,19 +24,22 @@ def parse_and_handle_args(args):
 		INPUT_FILE = None
 	if args.url:
 		print('executing: {}'.format(url_input))
-		url_input.main_app(INPUT_URL)
+		url_input.execute(INPUT_URL)
 	elif args.check:
 		print('executing: {}'.format(check))
-		check.main_app(INPUT_FILE)
+		check.execute(INPUT_FILE)
+	elif args.check_json:
+		print('executing: {}'.format(check_json))
+		check_json.execute(INPUT_FILE)
 	elif args.extract:
 		print('executing: {}'.format(extract))
-		extract.main_app(INPUT_FILE)
+		extract.execute(INPUT_FILE)
 	elif args.scrape:
 		print('executing: {}'.format(scrape))
-		scrape.main_app(INPUT_FILE)
+		scrape.execute(INPUT_FILE)
 	elif args.scrape_n:
 		print('executing: {}'.format(scrape_n))
-		scrape_n.main_app(INPUT_FILE)
+		scrape_n.execute(INPUT_FILE)
 
 def init_parser():
 	"""
@@ -50,7 +53,7 @@ def init_parser():
 	)
 	parser.add_argument(
 		'input_file',
-		help='Indicate the input file to scrape.',
+		help='Indicate the input file to scrape.  Files must be formated like the files in the examples directory.',
 		type=str,
 		nargs='*'
 	)
@@ -62,14 +65,22 @@ def init_parser():
 	)
 	parser.add_argument(
 		'--check',
-		help='Find broken links from urls in file.',
+		help='Find broken links from urls in input file.',
 		const=True, default=False,
 		type=bool,
 		nargs='?'
 	)
 	parser.add_argument(
+		'--check-json',
+		help='Find broken links from urls in input json.',
+		const=True,
+		default=False,
+		type=bool,
+		nargs='?'
+	)
+	parser.add_argument(
 		'--extract',
-		help='Extract name from emails in file.',
+		help='Extract name from emails in input file.',
 		const=True,
 		default=False,
 		type=bool,
@@ -77,7 +88,7 @@ def init_parser():
 	)
 	parser.add_argument(
 		'--scrape',
-		help='Scrape emails and social media urls from file.',
+		help='Scrape emails and social media urls from urls in file.',
 		const=True,
 		default=False,
 		type=bool,
@@ -85,7 +96,7 @@ def init_parser():
 	)
 	parser.add_argument(
 		'--scrape-n',
-		help='Scrape emails and social media urls from file with new links.',
+		help='Scrape emails and social media urls from urls in file while adding new urls to the queue to scrape.',
 		const=True,
 		default=False,
 		type=bool,
@@ -93,7 +104,7 @@ def init_parser():
 	)
 	return parser
 
-def main_app():
+def execute():
 	"""
 	MAIN APP
 	"""
@@ -105,4 +116,4 @@ if __name__ == "__main__":
 	if len(sys.argv) <= 2 and '--help' not in sys.argv:
 		print('Usage:\n$ ./domain_scraper.py --help', file=sys.stderr)
 		sys.exit(1)
-	main_app()
+	execute()

@@ -4,6 +4,7 @@ writes initial files for file storage
 """
 from modules.urls.helpers import url_is_new
 import datetime
+import json
 import random
 
 # FILES
@@ -11,6 +12,18 @@ FILE_HASH = str(random.random()).split('.')[1]
 TEMP_EMAIL_OUTPUT_FILE = './file_storage/temp_emails_' + FILE_HASH
 TEMP_SOCIAL_OUTPUT_FILE = './file_storage/temp_social_media_' + FILE_HASH
 CHECKED_URLS = './file_storage/already_checked_urls_' + FILE_HASH
+
+def read_json_and_add_to_queue(INPUT_FILE, all_links, links_to_scrape_q):
+    """
+    reads links from input file and adds them to a queue
+    """
+    with open(INPUT_FILE, "r", encoding="utf-8") as json_file:
+        data = json.load(json_file)
+    for i, location in enumerate(data):
+        new_url = location['website'].strip()
+        if url_is_new(new_url, all_links):
+            all_links.add(new_url)
+            links_to_scrape_q.put(new_url)
 
 def read_file_add_to_queue(INPUT_FILE, all_links, links_to_scrape_q):
     """

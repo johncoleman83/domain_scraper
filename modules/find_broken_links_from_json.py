@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Scrapes argv 1 input file for broken links
+Scrapes json file for broken links
 """
 from modules.errors import insert
 from modules.file_io import io
@@ -68,7 +68,7 @@ def execute(INPUT_FILE):
     """
     completes all tasks of the application
     """
-    io.read_file_add_to_queue(INPUT_FILE, all_links, domain_links_q)
+    io.read_json_and_add_to_queue(INPUT_FILE, all_links, domain_links_q)
     domain_links_loop()
     write_results_to_file()
 

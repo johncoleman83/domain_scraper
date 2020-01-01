@@ -1,0 +1,93 @@
+[
+  {
+    "id": 0,
+    "name": "BROKEN",
+    "description": "BROKEN.",
+    "services": "Health Care, Youth, Senior, Education!, Legal, Employment, Crisis, DUI, Women, Medicaid, Criminal Justice System, Veterans, Inpatient, IOP, Residential, Domestic Violence, LGBTQ+, HIV/ AIDS, Pregnant, Disability, Spanish, Detox, Substance Abuse, Various, Asian",
+    "address": "BROKEN",
+    "phone": "773-761-0300",
+    "website": "http://BROKENsdfasdfasdfasdfasdfkahjBROKEN.org/",
+    "latitude": 42.040904,
+    "longitude": -87.759333,
+    "peace_hub_member": false,
+    "map-icon": "https://www.chicagoresourcehub.com/wp-content/uploads/2019/11/blu-circle-lv.png"
+  },
+  {
+    "id": 1,
+    "name": "Asian Human Services Skokie -  Clinic",
+    "description": "<i>Mission: </i>Since 1978, when Asian Human Services began helping South East Asian refugees, the organization has retained a single purpose: to positively transform lives among Chicago's immigrants, refugees, and other underserved communities.  We exist to provide client-centered, quality and compassionate services to Asian immigrants and other underserved communities so that they can fully participate in society, prosper and thrive.",
+    "services": "Health Care, Youth, Senior, Education!, Legal, Employment, Crisis, DUI, Women, Medicaid, Criminal Justice System, Veterans, Inpatient, IOP, Residential, Domestic Violence, LGBTQ+, HIV/ AIDS, Pregnant, Disability, Spanish, Detox, Substance Abuse, Various, Asian",
+    "address": "8800 Lockwood Ave, Skokie, IL 60077-1500",
+    "phone": "773-761-0300",
+    "website": "http://ahschicago.org/",
+    "latitude": 42.040904,
+    "longitude": -87.759333,
+    "peace_hub_member": false,
+    "map-icon": "https://www.chicagoresourcehub.com/wp-content/uploads/2019/11/blu-circle-lv.png"
+  },
+  {
+    "id": 2,
+    "name": "Saint Michaels Counseling Center",
+    "description": "",
+    "services": "Substance Abuse, Women, Medicaid, Spanish",
+    "address": "7124 W. Grand Avenue,  Suite A, Elmwood Park, IL 60707",
+    "phone": "773-598-8540",
+    "website": "https://www.google.com/search?q=Saint+Michaels+Counseling+Center+Chicago+IL",
+    "latitude": 41.923982,
+    "longitude": -87.803577,
+    "peace_hub_member": false,
+    "map-icon": "https://www.chicagoresourcehub.com/wp-content/uploads/2019/11/blu-circle-lv.png"
+  },
+  {
+    "id": 3,
+    "name": "Alivio Medical Center -  Walk-In Wellness Center at MacNeal Hospital",
+    "description": "<i>Mission: </i> Alivio Medical Center is a bilingual, bicultural organization committed to providing quality, cost-effective healthcare to the Hispanic community, the uninsured and the underinsured, not to the exclusion of other cultures and races. This mission is expressed through the healthcare services and education provided in an environment of caring and respect, in addition to advocacy, research and evaluation activities completed to advance the health of these specific populations.  Our <i>Vision: </i>Is to be a multi-site medical center providing well-coordinated, integrated, comprehensive and culturally-sensitive services. Alivio Medical Center is a leader, a model for community health centers nationwide. Our surrounding communities will look to us as a hub where they can find connections to others who share similar health challenges and solutions to those challenges.  Every visit to Alivio Medical Center will be productive and meaningful.  When patients arrive at Alivio Medical Center, the first thing they will always notice is the welcoming atmosphere and dedicated staff. Throughout their visit, staff and volunteers will show a genuine interest in assuring a seamless, satisfying experience for the people they serve.",
+    "services": "Health Care, Youth, Senior, Education!, Legal, Employment, Crisis, DUI, Women, Medicaid, Criminal Justice System, Veterans, Inpatient, IOP, Residential, Domestic Violence, LGBTQ+, HIV/ AIDS, Pregnant, Disability, Spanish, Detox, Substance Abuse, Various",
+    "address": "3249 Oak Park Ave, Berwyn, IL 60402-3429",
+    "phone": "773-254-1400",
+    "website": "http://aliviomedicalcenter.org/",
+    "latitude": 41.832328,
+    "longitude": -87.792713,
+    "peace_hub_member": false,
+    "map-icon": "https://www.chicagoresourcehub.com/wp-content/uploads/2019/11/blu-circle-lv.png"
+  },
+  {
+    "id": 4,
+    "name": "Addiction Recovery Services, Inc.",
+    "description": "",
+    "services": "Substance Abuse: Outpatient, IOP, DUI",
+    "address": "6416 S. Central Ave, Chicago, IL 60638",
+    "phone": "773-581-2930",
+    "website": "http://arsdui.com",
+    "latitude": 41.775679,
+    "longitude": -87.761967,
+    "peace_hub_member": false,
+    "map-icon": "https://www.chicagoresourcehub.com/wp-content/uploads/2019/11/blu-circle-lv.png"
+  },
+  {
+    "id": 5,
+    "name": "Addiction Recovery Services Inc",
+    "description": "",
+    "services": "Substance Abuse, Women, IOP",
+    "address": "5328 S. Archer, Chicago, IL 60632",
+    "phone": "773-581-2930",
+    "website": "http://arsdui.com",
+    "latitude": 41.799293,
+    "longitude": -87.740944,
+    "peace_hub_member": false,
+    "map-icon": "https://www.chicagoresourcehub.com/wp-content/uploads/2019/11/blu-circle-lv.png"
+  },
+  {
+    "id": 6,
+    "name": "BROKEN 2",
+    "description": "BROKEN 2.",
+    "services": "Health Care, Youth, Senior, Education!, Legal, Employment, Crisis, DUI, Women, Medicaid, Criminal Justice System, Veterans, Inpatient, IOP, Residential, Domestic Violence, LGBTQ+, HIV/ AIDS, Pregnant, Disability, Spanish, Detox, Substance Abuse, Various, Asian",
+    "address": "BROKEN",
+    "phone": "773-761-0300",
+    "website": "http://BROKEN2BROKEN2BROKEN2asdfasdfasdfasdf.org/",
+    "latitude": 42.040904,
+    "longitude": -87.759333,
+    "peace_hub_member": false,
+    "map-icon": "https://www.chicagoresourcehub.com/wp-content/uploads/2019/11/blu-circle-lv.png"
+  }
+]

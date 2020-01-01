@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Scrapes links from argv 1 file for email addresses and social media
-does not look for new links
+Scrapes urls from file for email addresses and social media
+does not add new urls to the queue from urls found while scraping
 """
 from bs4 import BeautifulSoup
 from modules.errors import insert
@@ -92,7 +92,7 @@ def loop_all_links():
         scrape_url(url)
 
 
-def main_app(INPUT_FILE):
+def execute(INPUT_FILE):
     """
     completes all tasks of the application
     """

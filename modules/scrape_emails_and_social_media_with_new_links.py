@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Scrapes links from argv 1 file for email addresses & social media
-looks for new links
+Scrapes urls from file for email addresses & social media
+while scraping, it also looks for new urls to add to the queue of urls
 """
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
@@ -152,7 +152,7 @@ def write_results_to_file():
                     line += "social_media: {}\n".format(meta.get('social_media', 0))
                 open_file.write(line)
 
-def main_app(INPUT_FILE):
+def execute(INPUT_FILE):
     """
     completes all tasks of the application
     """

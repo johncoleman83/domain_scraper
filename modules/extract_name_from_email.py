@@ -101,7 +101,7 @@ def loop_all_emails():
         temp_write_new_name_to_file(name_association.strip())
 
 
-def main_app(INPUT_FILE):
+def execute(INPUT_FILE):
     """
     completes all tasks of the application
     """
