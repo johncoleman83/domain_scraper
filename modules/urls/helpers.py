@@ -3,9 +3,34 @@
 url helpers
 """
 import re
+import requests
 
 INVALID_SOCIAL_MEDIA_PATTERN = re.compile('/home\?status|/intent/|share', re.IGNORECASE|re.DOTALL)
 VALID_SOCIAL_MEDIA_PATTERN = re.compile('twitter\.com|linkedin\.com|facebook\.com|github\.com', re.IGNORECASE|re.DOTALL)
+TIMEOUT = (3, 10)
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
+}
+
+def make_request_for(url):
+    """
+    scrapes url that is from main domain website
+    """
+    try:
+        r = requests.get(url, headers=HEADERS, allow_redirects=True, timeout=TIMEOUT)
+    except Exception as e:
+        print("ERROR with requests to {}".format(url))
+        print(e)
+        return 500
+    status = r.status_code
+    if status >= 300:
+        print('error with URL: {} STATUS: {}'.format(url, status))
+        if status == 302:
+            status = r.url
+    else:
+        status = None
+    return status
+
 
 def url_is_valid_social_media(social_url):
     """
